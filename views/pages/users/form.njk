@@ -1,0 +1,28 @@
+{% extends "layouts/app.njk" %}
+{% from "components/forms.njk" import input, select, formError %}
+{% block title %}{{ 'New user' if creating else 'Edit ' + target.fullName }}{% endblock %}
+{% block page %}user-form{% endblock %}
+{% block crumbs %}<a href="/users">Users</a><span>/</span><strong>{{ 'New' if creating else target.fullName }}</strong>{% endblock %}
+{% block content %}
+<header class="page-head"><div><span class="eyebrow">Administration</span><h1 data-split>{{ 'New user' if creating else target.fullName }}</h1>
+<p>{% if creating %}A one-time temporary password is generated and shown once after creation.{% else %}{{ target.email }}{% endif %}</p></div></header>
+<form class="card glass" {% if creating %}action="/users" hx-post="/users"{% else %}action="/users/{{ target.id }}" hx-put="/users/{{ target.id }}"{% endif %} hx-target="body" novalidate data-reveal="card">
+  {{ formError(errors) }}
+  <div class="form-grid">
+    {{ input('fullName', 'Full name', values.fullName, 'text', errors, required=true) }}
+    {% if creating %}{{ input('email', 'Work email', values.email, 'email', errors, required=true) }}{% else %}<div class="field"><span class="label">Email</span><span class="input" style="display:flex;align-items:center;opacity:.7">{{ target.email }}</span></div>{% endif %}
+    {{ input('jobTitle', 'Job title', values.jobTitle, 'text', errors) }}
+    {{ select('departmentId', 'Department', departmentOptions, values.departmentId, errors, placeholder='Choose…', required=true) }}
+    <fieldset class="field span-2{{ ' has-error' if errors and errors.roles }}" style="border:0;padding:0;margin:0">
+      <legend class="label" style="margin-bottom:8px">Roles</legend>
+      <div class="grid grid-2" style="gap:10px">
+        {% for r in roleOptions %}
+        <label class="check glass flat" style="--r:14px;padding:12px 14px"><input type="checkbox" name="roles" value="{{ r.value }}" {{ 'checked' if r.value in values.roles }}><span><strong>{{ r.label }}</strong><br><small class="muted">{{ r.description }}</small></span></label>
+        {% endfor %}
+      </div>
+      {% if errors and errors.roles %}<span class="error" role="alert">{{ errors.roles }}</span>{% endif %}
+    </fieldset>
+  </div>
+  <div class="form-actions"><a class="btn btn-text" href="/users">Cancel</a><button class="btn btn-primary" type="submit">{{ 'Create user' if creating else 'Save changes' }}<span class="spinner" aria-hidden="true"></span></button></div>
+</form>
+{% endblock %}

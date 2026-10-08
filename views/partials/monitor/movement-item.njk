@@ -1,0 +1,8 @@
+{% from "components/icons.njk" import icon %}
+<div class="feed-item" style="--tone:var(--{{ 'good' if m.quantityDelta > 0 else 'warn' }})" data-movement-id="{{ m.id }}" {% if isNew %}data-animate="enter"{% endif %}>
+  <span class="fi-icon">{{ icon('box') }}</span>
+  <div><a href="/products/{{ m.productId }}"><strong>{{ m.productName }}</strong></a>
+    <span class="movement-delta {{ 'pos' if m.quantityDelta > 0 else 'neg' }}">{{ '+' if m.quantityDelta > 0 }}{{ m.quantityDelta }}</span>
+    <span class="muted">· {{ m.previousQuantity }} → {{ m.newQuantity }}</span>
+    <div class="fi-time">{{ m.movementType | humanize }} · {{ m.actorName or 'System' }} · {{ m.createdAt | ago }}</div></div>
+</div>

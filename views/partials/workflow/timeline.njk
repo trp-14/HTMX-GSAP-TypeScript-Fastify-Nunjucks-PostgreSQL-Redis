@@ -1,0 +1,10 @@
+<div class="timeline" id="workflow-timeline" data-module="timeline" {% if oob %}hx-swap-oob="true"{% endif %}>
+  {% for t in transitions | reverse %}
+  {% set m = t.toStatus | statusMeta %}
+  <div class="tl-item" style="--tone:var(--{{ m.tone }})">
+    <div><strong>{{ 'Created as draft' if not t.fromStatus else m.label }}</strong> <span class="muted">by {{ t.actorName }}</span></div>
+    <div class="tl-time" title="{{ t.createdAt | datetime }}">{{ t.createdAt | datetime }}</div>
+    {% if t.note %}<div class="tl-note">“{{ t.note }}”</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>

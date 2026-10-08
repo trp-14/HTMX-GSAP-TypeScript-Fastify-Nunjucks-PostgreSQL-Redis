@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}FlowDesk{% endblock %} · FlowDesk</title>
+  <meta name="description" content="{% block description %}FlowDesk — business workflows, operations and real-time monitoring in one platform.{% endblock %}">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#060a1c">
+  {#- HTMX config: no eval (strict CSP), and 422 validation responses are swapped so forms can show errors. -#}
+  <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"includeIndicatorStyles":false,"historyCacheSize":0,"refreshOnHistoryMiss":true,"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"422","swap":true},{"code":"[45]..","swap":false,"error":true}]}'>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css?v={{ assetVersion }}">
+  <script src="/assets/vendor/htmx.min.js?v={{ assetVersion }}" defer></script>
+  <script src="/assets/app.js?v={{ assetVersion }}" type="module"></script>
+</head>
+<body>
+{#- HTMX swaps the *contents* of <body> on boosted navigation but never its attributes, so all
+    per-page state (CSRF header, signed-in user, boost settings) lives on this wrapper. -#}
+<div class="app-root" id="app-root" {% block rootAttrs %}{% endblock %}>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="top-progress" id="top-progress" aria-hidden="true"></div>
+  <div class="aurora" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
+  <div class="dots" aria-hidden="true"></div>
+  {% block body %}{% endblock %}
+  <div class="toasts" id="toasts" role="region" aria-live="polite" aria-label="Notifications"></div>
+  {% if flash %}<template id="flash" data-type="{{ flash.type }}" data-message="{{ flash.message }}"></template>{% endif %}
+</div>
+</body>
+</html>

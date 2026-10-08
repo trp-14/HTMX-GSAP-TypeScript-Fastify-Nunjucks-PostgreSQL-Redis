@@ -1,0 +1,103 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% from "components/ui.njk" import stat, statusBadge, priorityBadge, inventoryBadge, meter, avatar, emptyState %}
+{% block title %}Overview{% endblock %}
+{% block page %}overview{% endblock %}
+{% block crumbs %}<strong>Overview</strong>{% endblock %}
+{% block content %}
+<div data-module="overview">
+<header class="hello">
+  <div>
+    <span class="eyebrow">{{ settings.organizationName }} · operations</span>
+    <h1 data-split style="margin-top:10px">{{ greeting }}, <em>{{ user.fullName.split(' ')[0] }}.</em></h1>
+    <p class="muted" style="margin-top:8px">{% if counters.pendingApprovals and can['request:review'] %}{{ counters.pendingApprovals }} request{{ 's' if counters.pendingApprovals != 1 }} waiting for review.{% elif counters.processing and can['request:process'] %}{{ counters.processing }} request{{ 's are' if counters.processing != 1 else ' is' }} being processed.{% else %}Here is what is moving across the organisation today.{% endif %}</p>
+  </div>
+  <div class="actions-panel">
+    <a class="btn btn-ghost" href="/monitor">{{ icon('pulse') }}<span>Open live monitor</span></a>
+  </div>
+</header>
+
+<section class="stats" aria-label="Key figures">
+  {{ stat('Open requests', counters.active, 'ice', counters.overdue ~ ' overdue', '/requests?scope=') }}
+  {{ stat('Pending approvals', counters.pendingApprovals, 'violet', counters.submittedToday ~ ' submitted today', '/requests?status=UNDER_REVIEW') }}
+  {{ stat('In processing', counters.processing, 'info', counters.approvedToday ~ ' approved today', '/requests?status=PROCESSING') }}
+  {{ stat('Completed', counters.completed, 'good', counters.completedToday ~ ' today', '/requests?status=COMPLETED') }}
+  {{ stat('Products', inventory.total, 'ice', (inventory.stockValue | money) ~ ' in stock', '/products') }}
+  {{ stat('Low stock', inventory.lowStock, 'warn', 'at or below threshold', '/products?stock=LOW_STOCK') }}
+  {{ stat('Out of stock', inventory.outOfStock, 'bad', 'needs reorder', '/products?stock=OUT_OF_STOCK') }}
+</section>
+
+<div class="split">
+  <div class="grid">
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Request volume · 14 days</h2>
+        <span class="legend"><span><i style="background:var(--ice)"></i>Created</span><span><i style="background:var(--good)"></i>Completed</span></span></div>
+      <svg class="spark" viewBox="0 0 {{ spark.w }} {{ spark.h }}" preserveAspectRatio="none" role="img" aria-label="Requests created and completed per day over the last 14 days" data-spark>
+        <defs><linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe3ff" stop-opacity=".35"/><stop offset="1" stop-color="#8fe3ff" stop-opacity="0"/></linearGradient></defs>
+        <polygon class="area" points="{{ spark.area }}"/>
+        <polyline class="line" points="{{ spark.created }}" data-draw/>
+        <polyline class="line2" points="{{ spark.completed }}"/>
+      </svg>
+      <div style="display:flex;justify-content:space-between" class="mono faint"><span>{{ volume[0].day | date }}</span><span>{% if cycleHours %}avg. cycle {{ (cycleHours / 24) | round(1) }} days{% endif %}</span><span>Today</span></div>
+    </section>
+
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Recently updated requests</h2><a class="link" href="/requests?sort=updated">View all</a></div>
+      {% if recent.length %}
+      <div class="mini-list">
+        {% for r in recent %}
+        <a class="mini-row" href="/requests/{{ r.requestNumber }}">
+          <span class="req-no">#{{ r.requestNumber }}</span>
+          <span class="t"><strong>{{ r.title }}</strong><span>{{ r.requesterName }} · {{ r.typeName }} · {{ r.updatedAt | ago }}</span></span>
+          {{ statusBadge(r.status) }}
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}{{ emptyState('No requests yet', 'Requests you raise or work on will appear here.', 'inbox', 'New request', '/requests/new') }}{% endif %}
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Workflow summary</h2></div>
+      <div class="flow-summary">
+        {% for s in ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'CHANGES_REQUESTED', 'APPROVED', 'PROCESSING', 'COMPLETED', 'REJECTED'] %}
+        {% set m = s | statusMeta %}{% set n = distribution[s] or 0 %}
+        <div class="flow-row"><span>{{ m.label }}</span>{{ meter(n, distributionTotal, m.tone if m.tone != 'muted' else 'info') }}<span class="num">{{ n }}</span></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Inventory attention</h2><a class="link" href="/products?stock=LOW_STOCK">Low stock</a></div>
+      {% if attention.length %}
+      <div class="mini-list">
+        {% for p in attention %}
+        <a class="mini-row" href="/products/{{ p.id }}"><span class="mono num">{{ p.stockQuantity }}</span><span class="t"><strong>{{ p.name }}</strong><span>{{ p.sku }} · reorder at {{ p.reorderThreshold }}</span></span>{{ inventoryBadge(p.inventoryStatus) }}</a>
+        {% endfor %}
+      </div>
+      {% else %}<p class="muted">Every active product is above its reorder threshold.</p>{% endif %}
+    </section>
+
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Recent activity</h2></div>
+      <div class="timeline" data-module="timeline">
+        {% for a in activity %}{% set v = activityView(a) %}
+        <div class="tl-item" style="--tone:var(--{{ v.tone }})">
+          <div>{% if v.href %}<a href="{{ v.href }}">{{ v.text }}</a>{% else %}{{ v.text }}{% endif %}</div>
+          <div class="tl-time">{{ a.createdAt | ago }}</div>
+        </div>
+        {% else %}<p class="muted">No activity yet.</p>{% endfor %}
+      </div>
+    </section>
+
+    {% if articles.length %}
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>From the Knowledge Center</h2></div>
+      <div class="mini-list">{% for a in articles %}<a class="mini-row" href="/knowledge/{{ a.slug }}">{{ icon('book') }}<span class="t"><strong>{{ a.title }}</strong><span>{{ a.categoryName }} · {{ a.readingMinutes }} min read</span></span><span></span></a>{% endfor %}</div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+</div>
+{% endblock %}

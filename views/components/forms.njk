@@ -1,0 +1,49 @@
+{#- Form components. `errors` is a field→message map from server-side validation. -#}
+{% from "components/icons.njk" import icon %}
+
+{% macro csrf(token) %}<input type="hidden" name="_csrf" value="{{ token }}">{% endmacro %}
+
+{% macro fieldError(name, errors) %}
+{% if errors and errors[name] %}<span class="error" id="{{ name }}-error" role="alert">{{ icon('alert') }}{{ errors[name] }}</span>{% endif %}
+{% endmacro %}
+
+{% macro input(name, label, value='', type='text', errors=None, hint='', required=false, attrs='', cls='') %}
+<div class="field {{ cls }}{{ ' has-error' if errors and errors[name] }}">
+  <label for="f-{{ name }}">{{ label }}{% if required %} <span aria-hidden="true">*</span>{% endif %}</label>
+  <input class="input" id="f-{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ value if value != None }}" {{ 'required' if required }}
+    {% if errors and errors[name] %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %} {{ attrs | safe }}>
+  {% if hint %}<span class="hint">{{ hint }}</span>{% endif %}
+  {{ fieldError(name, errors) }}
+</div>
+{% endmacro %}
+
+{% macro textarea(name, label, value='', errors=None, hint='', required=false, rows=5, attrs='', cls='') %}
+<div class="field {{ cls }}{{ ' has-error' if errors and errors[name] }}">
+  <label for="f-{{ name }}">{{ label }}{% if required %} <span aria-hidden="true">*</span>{% endif %}</label>
+  <textarea class="textarea" id="f-{{ name }}" name="{{ name }}" rows="{{ rows }}" {{ 'required' if required }}
+    {% if errors and errors[name] %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %} {{ attrs | safe }}>{{ value if value != None }}</textarea>
+  {% if hint %}<span class="hint">{{ hint }}</span>{% endif %}
+  {{ fieldError(name, errors) }}
+</div>
+{% endmacro %}
+
+{#- options: list of {value, label} -#}
+{% macro select(name, label, options, selected='', errors=None, placeholder=None, required=false, attrs='', cls='') %}
+<div class="field {{ cls }}{{ ' has-error' if errors and errors[name] }}">
+  <label for="f-{{ name }}">{{ label }}{% if required %} <span aria-hidden="true">*</span>{% endif %}</label>
+  <select class="select" id="f-{{ name }}" name="{{ name }}" {{ 'required' if required }} {{ attrs | safe }}
+    {% if errors and errors[name] %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}>
+    {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
+    {% for o in options %}<option value="{{ o.value }}" {{ 'selected' if o.value | same(selected) }}>{{ o.label }}</option>{% endfor %}
+  </select>
+  {{ fieldError(name, errors) }}
+</div>
+{% endmacro %}
+
+{% macro checkbox(name, label, checked=false, value='on', hint='') %}
+<label class="check"><input type="checkbox" name="{{ name }}" value="{{ value }}" {{ 'checked' if checked }}><span>{{ label }}{% if hint %}<br><small class="muted">{{ hint }}</small>{% endif %}</span></label>
+{% endmacro %}
+
+{% macro formError(errors) %}
+{% if errors and errors._form %}<div class="alert" style="--tone:var(--bad)" role="alert">{{ icon('alert') }}<span>{{ errors._form }}</span></div>{% endif %}
+{% endmacro %}

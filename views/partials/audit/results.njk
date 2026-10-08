@@ -1,0 +1,30 @@
+{% from "components/ui.njk" import emptyState, avatar %}
+{% from "components/pagination.njk" import pagination %}
+<section id="audit-results" class="table-card glass loading-region" data-module="listReveal">
+  {% if results.items.length %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Change</th><th>IP</th></tr></thead>
+    <tbody>
+    {% for a in results.items %}
+      <tr data-list-item>
+        <td class="mono num" style="white-space:nowrap" title="{{ a.createdAt | iso }}">{{ a.createdAt | datetime }}</td>
+        <td>{% if a.actorName %}<span style="display:flex;gap:8px;align-items:center">{{ avatar(a.actorName, 24) }}{{ a.actorName }}</span>{% else %}<span class="faint">System</span>{% endif %}</td>
+        <td><span class="badge tone-{{ 'bad' if ('DELETED' in a.action or 'REJECTED' in a.action or 'DEACTIVATED' in a.action) else ('good' if ('APPROVED' in a.action or 'COMPLETED' in a.action or 'CREATED' in a.action) else ('warn' if 'INVENTORY' in a.action or 'ROLE' in a.action else 'info')) }}">{{ a.action }}</span></td>
+        <td class="mono">{{ a.entityType }} · {% if a.entityType == 'request' %}<a class="link" href="/requests/{{ a.entityId }}">#{{ a.entityId }}</a>{% else %}{{ a.entityId | truncate(18) }}{% endif %}</td>
+        <td>
+          {% if a.previousState or a.newState or (a.metadata | dump) != '{}' %}
+          <details class="audit-details"><summary>View</summary>
+            {% if a.previousState %}<div class="label" style="margin-top:6px">Before</div><pre class="json">{{ a.previousState | dump(2) }}</pre>{% endif %}
+            {% if a.newState %}<div class="label" style="margin-top:6px">After</div><pre class="json">{{ a.newState | dump(2) }}</pre>{% endif %}
+            {% if (a.metadata | dump) != '{}' %}<div class="label" style="margin-top:6px">Metadata</div><pre class="json">{{ a.metadata | dump(2) }}</pre>{% endif %}
+          </details>
+          {% else %}<span class="faint">—</span>{% endif %}
+        </td>
+        <td class="mono faint">{{ a.ipAddress or '—' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {{ pagination(results, query, '/audit', 'audit-results') }}
+  {% else %}{{ emptyState('No audit entries', 'No records match these filters.', 'shield') }}{% endif %}
+</section>

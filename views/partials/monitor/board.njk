@@ -1,0 +1,59 @@
+{% from "components/icons.njk" import icon %}
+{#- The whole board is re-fetched (hx-target=monitor-board) after an SSE reconnect to resynchronise
+    with PostgreSQL; individual updates in between are applied surgically from SSE events. -#}
+<div id="monitor-board">
+  <section class="counters" aria-label="Live counters">
+    {% set cs = [
+      { key: 'active', label: 'Active requests', value: counters.active, tone: 'ice' },
+      { key: 'pendingApprovals', label: 'Pending approvals', value: counters.pendingApprovals, tone: 'violet' },
+      { key: 'submittedToday', label: 'Submitted today', value: counters.submittedToday, tone: 'info' },
+      { key: 'approvedToday', label: 'Approved today', value: counters.approvedToday, tone: 'good' },
+      { key: 'processing', label: 'In processing', value: counters.processing, tone: 'ice' },
+      { key: 'completedToday', label: 'Completed today', value: counters.completedToday, tone: 'good' },
+      { key: 'lowStock', label: 'Low stock', value: inventory.lowStock, tone: 'warn' },
+      { key: 'outOfStock', label: 'Out of stock', value: inventory.outOfStock, tone: 'bad' }
+    ] %}
+    {% for c in cs %}
+    <div class="counter glass" style="--tone:var(--{{ c.tone }})" data-counter="{{ c.key }}" data-reveal="card">
+      <span class="label"><i></i>{{ c.label }}</span>
+      <span class="value"><span data-counter-value>{{ c.value }}</span><span class="delta" data-counter-delta></span></span>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section class="board" aria-label="Request workflow lanes">
+    {% for lane in lanes %}
+    {% set m = lane.status | statusMeta %}
+    <div class="lane glass" style="--tone:var(--{{ m.tone }})" data-lane="{{ lane.status }}" data-reveal="card">
+      <div class="lane-head"><h3><i></i>{{ lane.title }}</h3><span class="lane-total" data-lane-total>{{ lane.total }}</span></div>
+      <p class="lane-hint">{{ lane.hint }}</p>
+      <div class="lane-body" data-lane-body>
+        {% for r in lane.requests %}{% include "partials/monitor/lane-card.njk" %}{% endfor %}
+        <p class="lane-empty" data-lane-empty {% if lane.requests.length %}hidden{% endif %}>Nothing here right now</p>
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section class="monitor-split">
+    <div class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Inventory watch</h2><a class="link mono" href="/products?stock=LOW_STOCK">all low stock</a></div>
+      <div class="watch-list" data-watch-list>
+        {% for p in attention %}{% include "partials/monitor/watch-item.njk" %}{% endfor %}
+        <p class="lane-empty" data-watch-empty {% if attention.length %}hidden{% endif %}>All products are healthy.</p>
+      </div>
+    </div>
+    <div class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Inventory changes</h2><span class="muted mono">movements</span></div>
+      <div class="feed" data-movement-feed data-last-id="{{ movements[0].id if movements.length else 0 }}">
+        {% for m in movements %}{% include "partials/monitor/movement-item.njk" %}{% endfor %}
+      </div>
+    </div>
+    <div class="card glass" data-reveal="card">
+      <div class="card-head"><h2>System activity</h2><span class="muted mono">audit stream</span></div>
+      <div class="feed" data-activity-feed data-last-id="{{ activity[0].id if activity.length else 0 }}">
+        {% set items = activity %}{% include "partials/monitor/activity-items.njk" %}
+      </div>
+    </div>
+  </section>
+</div>

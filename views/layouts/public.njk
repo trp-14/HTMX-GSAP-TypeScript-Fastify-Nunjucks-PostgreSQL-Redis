@@ -1,0 +1,3 @@
+{% extends "layouts/base.njk" %}
+{% block rootAttrs %}hx-boost="true" hx-swap="innerHTML swap:140ms"{% endblock %}
+{% block body %}<main id="main" data-page="{% block page %}{% endblock %}">{% block content %}{% endblock %}</main>{% endblock %}

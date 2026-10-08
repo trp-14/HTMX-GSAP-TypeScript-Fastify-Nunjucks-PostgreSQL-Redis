@@ -1,0 +1,6 @@
+{% from "components/ui.njk" import statusBadge %}
+{#- Primary target: the workflow panel. Out-of-band swaps keep the header badge, history and
+    side cards consistent without reloading the page. -#}
+{% include "partials/workflow/panel.njk" %}
+<span id="request-status-badge" hx-swap-oob="true">{{ statusBadge(request.status) }}</span>
+{% set oob = true %}{% include "partials/workflow/timeline.njk" %}

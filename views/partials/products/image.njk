@@ -1,0 +1,11 @@
+{% from "components/product-art.njk" import productVisual %}
+{% from "components/icons.njk" import icon %}
+<div class="p-art glass" id="product-image" style="--h:{{ product.hue }};position:relative" data-product-image>
+  {{ productVisual(product) }}
+  {% if can['product:manage'] %}
+  <form style="position:absolute;right:12px;bottom:12px" hx-post="/products/{{ product.id }}/image" hx-encoding="multipart/form-data" hx-target="#product-image" hx-swap="outerHTML" hx-trigger="change">
+    <label class="btn btn-ghost btn-sm" style="cursor:pointer">{{ icon('image') }}<span>Change photo</span>
+      <input class="sr-only" type="file" name="file" accept=".png,.jpg,.jpeg,.webp"></label>
+  </form>
+  {% endif %}
+</div>

@@ -1,0 +1,11 @@
+{% from "components/ui.njk" import emptyState %}
+{% from "components/pagination.njk" import pagination %}
+<section id="notification-results" class="page-notif loading-region" data-module="listReveal">
+  {% set variant = 'page' %}
+  <div class="notif-list">
+    {% for n in page.items %}{% include "partials/notifications/item.njk" %}{% else %}
+    <div class="card glass">{{ emptyState('No notifications', 'Approvals, assignments, comments and stock alerts will show up here.' if filter == 'all' else 'Nothing unread — nice.', 'bell') }}</div>
+    {% endfor %}
+  </div>
+  {{ pagination(page, query, '/notifications', 'notification-results') }}
+</section>

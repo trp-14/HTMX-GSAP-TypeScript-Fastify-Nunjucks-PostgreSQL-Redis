@@ -1,0 +1,15 @@
+{% from "components/icons.njk" import icon %}
+{%- set toneMap = { 'request.approved': 'good', 'request.completed': 'good', 'request.rejected': 'bad', 'inventory.out': 'bad', 'request.changes_requested': 'warn', 'inventory.low': 'warn' } -%}
+{%- set iconMap = { 'request.approved': 'check', 'request.completed': 'check', 'request.rejected': 'x', 'request.changes_requested': 'edit', 'request.assigned': 'user', 'request.commented': 'message', 'inventory.low': 'alert', 'inventory.out': 'alert', 'product.created': 'box', 'product.updated': 'box', 'request.submitted': 'inbox', 'request.ready_for_processing': 'zap' } -%}
+<article class="notif n-tone-{{ toneMap[n.type] or 'info' }}{{ ' unread' if not n.readAt }}" id="notif-{{ variant }}-{{ n.id }}" data-notification="{{ n.id }}" {% if isNew %}data-animate="enter"{% endif %}>
+  <span class="n-icon">{{ icon(iconMap[n.type] or 'bell') }}</span>
+  <div style="min-width:0">
+    <div class="n-title">{% if n.link %}<a href="{{ n.link }}" hx-post="/notifications/{{ n.id }}/open" hx-target="body">{{ n.title }}</a>{% else %}{{ n.title }}{% endif %}</div>
+    {% if n.body %}<div class="n-body">{{ n.body }}</div>{% endif %}
+    <div class="n-time" title="{{ n.createdAt | datetime }}">{{ n.createdAt | ago }}</div>
+  </div>
+  <div class="n-actions">
+    {% if not n.readAt %}<button type="button" aria-label="Mark as read" title="Mark as read" hx-put="/notifications/{{ n.id }}/read?variant={{ variant }}" hx-target="closest .notif" hx-swap="outerHTML">{{ icon('check') }}</button>{% endif %}
+    <button type="button" aria-label="Remove notification" title="Remove" hx-delete="/notifications/{{ n.id }}" hx-target="closest .notif" hx-swap="outerHTML swap:250ms">{{ icon('x') }}</button>
+  </div>
+</article>

@@ -1,0 +1,7 @@
+{% from "components/icons.njk" import icon %}
+{% for a in items %}{% set v = activityView(a) %}
+<div class="feed-item" style="--tone:var(--{{ v.tone }})" data-activity-id="{{ a.id }}" {% if isNew %}data-animate="enter"{% endif %}>
+  <span class="fi-icon">{{ icon(v.icon) }}</span>
+  <div>{% if v.href %}<a href="{{ v.href }}">{{ v.text }}</a>{% else %}{{ v.text }}{% endif %}<div class="fi-time" title="{{ a.createdAt | datetime }}">{{ a.createdAt | ago }}</div></div>
+</div>
+{% endfor %}

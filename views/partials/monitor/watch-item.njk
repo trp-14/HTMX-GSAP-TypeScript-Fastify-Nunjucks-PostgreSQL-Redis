@@ -1,0 +1,6 @@
+{% from "components/ui.njk" import inventoryBadge, stockMeter %}
+<div class="watch-item" data-watch-item="{{ p.id }}" data-threshold="{{ p.reorderThreshold }}" {% if isNew %}data-animate="enter"{% endif %}>
+  <div style="min-width:0"><a class="wi-name" href="/products/{{ p.id }}">{{ p.name }}</a><div class="wi-sku">{{ p.sku }} · reorder at {{ p.reorderThreshold }}</div></div>
+  <div style="display:grid;justify-items:end;gap:4px"><span class="wi-qty" data-stock-number>{{ p.stockQuantity }}</span><span data-badge-slot>{{ inventoryBadge(p.inventoryStatus) }}</span></div>
+  <div class="wi-bar">{{ stockMeter(p.stockQuantity, p.reorderThreshold, p.inventoryStatus) }}</div>
+</div>

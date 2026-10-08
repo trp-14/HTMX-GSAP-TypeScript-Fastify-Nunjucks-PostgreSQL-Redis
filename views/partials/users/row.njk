@@ -1,0 +1,16 @@
+{% from "components/ui.njk" import avatar, badge %}
+{% from "components/icons.njk" import icon %}
+<tr id="user-{{ u.id }}" data-list-item>
+  <td class="title-cell"><span style="display:flex;gap:10px;align-items:center">{{ avatar(u.fullName, 32) }}<span><a href="/users/{{ u.id }}/edit">{{ u.fullName }}</a><span class="sub">{{ u.email }}{% if u.jobTitle %} · {{ u.jobTitle }}{% endif %}</span></span></span></td>
+  <td>{{ u.departmentName or '—' }}</td>
+  <td><span class="chips">{% for r in u.roles %}{{ badge(r | humanize, 'violet' if r == 'ADMIN' else ('ice' if r == 'MANAGER' else ('info' if r == 'OPERATIONS' else 'muted'))) }}{% endfor %}</span></td>
+  <td class="muted num">{{ u.lastLoginAt | ago if u.lastLoginAt else 'Never' }}</td>
+  <td>{{ badge('Active', 'good', true) if u.isActive else badge('Deactivated', 'bad', true) }}</td>
+  <td class="right" style="white-space:nowrap">
+    <a class="btn btn-text btn-sm" href="/users/{{ u.id }}/edit">{{ icon('edit') }}<span>Edit</span></a>
+    {% if u.id != user.id %}
+    <button class="btn btn-text btn-sm" type="button" hx-put="/users/{{ u.id }}/active" hx-vals='{"active": "{{ 'false' if u.isActive else 'true' }}"}' hx-target="closest tr" hx-swap="outerHTML"
+            {% if u.isActive %}data-confirm="Deactivate {{ u.fullName }}? They will be signed out everywhere."{% endif %}>{{ 'Deactivate' if u.isActive else 'Reactivate' }}</button>
+    {% endif %}
+  </td>
+</tr>

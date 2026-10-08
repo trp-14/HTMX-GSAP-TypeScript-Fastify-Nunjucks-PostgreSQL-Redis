@@ -1,0 +1,80 @@
+{% extends "layouts/base.njk" %}
+{% from "components/icons.njk" import icon, logo %}
+{% from "components/ui.njk" import avatar %}
+
+{#- hx-boost turns every link and form into an AJAX navigation; the SSE connection and
+    animation registry live in JS and survive the body swap. hx-headers carries the CSRF token. -#}
+{% block rootAttrs %}hx-boost="true" hx-swap="innerHTML swap:140ms" hx-headers='{"X-CSRF-Token": "{{ csrfToken }}"}' data-user="{{ user.id }}"{% endblock %}
+
+{% block body %}
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Primary">
+    <div class="sidebar-inner glass">
+      <a class="brand" href="/overview">{{ logo() }}<span>FlowDesk<small>{{ settings.organizationName }}</small></span></a>
+      <nav class="nav-section" aria-label="Main navigation">
+        {% for item in nav %}{% if item.section == 'main' %}
+        <a class="nav-link" href="{{ item.href }}" {% if item.active %}aria-current="page"{% endif %}>
+          {{ icon(item.icon) }}<span>{{ item.label }}</span>
+          {% if item.href == '/notifications' %}<span class="pill-count" data-unread-count>{{ unreadCount if unreadCount > 0 }}</span>{% endif %}
+          {% if item.href == '/monitor' %}<i class="live-dot" data-live-dot hidden></i>{% endif %}
+        </a>
+        {% endif %}{% endfor %}
+      </nav>
+      {% if can['user:manage'] or can['audit:read'] or can['settings:manage'] %}
+      <div class="nav-label">Administration</div>
+      <nav class="nav-section" aria-label="Administration">
+        {% for item in nav %}{% if item.section == 'admin' %}
+        <a class="nav-link" href="{{ item.href }}" {% if item.active %}aria-current="page"{% endif %}>{{ icon(item.icon) }}<span>{{ item.label }}</span></a>
+        {% endif %}{% endfor %}
+      </nav>
+      {% endif %}
+      <div class="sidebar-foot">
+        <div class="user-card">
+          {{ avatar(user.fullName, 36) }}
+          <div class="who"><strong>{{ user.fullName }}</strong><span>{{ user.roleLabel }}{% if user.departmentName %} · {{ user.departmentName }}{% endif %}</span></div>
+          <form method="post" action="/logout" hx-boost="false">
+            <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+            <button class="icon-btn" type="submit" aria-label="Sign out" title="Sign out">{{ icon('logout') }}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="scrim-nav" data-nav-scrim></div>
+
+  <div class="main-col">
+    <header class="topbar">
+      <div class="topbar-inner glass">
+        <button class="icon-btn menu-toggle" type="button" data-nav-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation">{{ icon('menu') }}</button>
+        <nav class="crumbs" aria-label="Breadcrumb">{% block crumbs %}{% endblock %}</nav>
+        <div class="topbar-actions">
+          <span class="live-status" data-live-status data-state="offline" title="Real-time connection"><i></i><span data-live-label>OFFLINE</span></span>
+          {% if can['request:create'] %}<a class="btn btn-primary btn-sm" href="/requests/new">{{ icon('plus') }}<span>New request</span></a>{% endif %}
+          <button class="icon-btn" type="button" aria-label="Open notifications" data-drawer-open="notif-drawer"
+                  hx-get="/notifications/drawer" hx-target="#notif-drawer-body" hx-trigger="click" hx-swap="innerHTML">
+            {{ icon('bell') }}<span class="pill-count" data-unread-count>{{ unreadCount if unreadCount > 0 }}</span>
+          </button>
+        </div>
+      </div>
+    </header>
+    {% if settings.maintenanceBanner %}<div class="banner" role="status">{{ settings.maintenanceBanner }}</div>{% endif %}
+    <main class="content" id="main" tabindex="-1" data-page="{% block page %}{% endblock %}">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<div class="drawer-scrim" data-drawer-scrim></div>
+<aside class="drawer cream" id="notif-drawer" aria-label="Notifications" aria-hidden="true" inert data-module="drawer">
+  <div class="drawer-head">
+    <div><span class="eyebrow">Inbox</span><h2>Notifications</h2></div>
+    <button class="icon-btn btn-cream" type="button" data-drawer-close aria-label="Close notifications">{{ icon('x') }}</button>
+  </div>
+  <div class="drawer-body" id="notif-drawer-body"></div>
+  <div class="drawer-foot">
+    <a class="btn btn-cream btn-sm" href="/notifications" data-drawer-close>View all</a>
+    <button class="btn btn-blue btn-sm" type="button" hx-post="/notifications/read-all" hx-target="#notif-drawer-body" hx-swap="innerHTML">Mark all read</button>
+  </div>
+</aside>
+<div class="modal-root" id="modal-root"></div>
+{% endblock %}

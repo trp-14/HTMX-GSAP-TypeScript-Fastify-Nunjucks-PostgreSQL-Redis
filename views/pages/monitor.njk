@@ -1,0 +1,22 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% block title %}Monitor Real-Time{% endblock %}
+{% block page %}monitor{% endblock %}
+{% block crumbs %}<strong>Monitor Real-Time</strong>{% endblock %}
+{% block content %}
+<div data-module="monitor">
+  <header class="page-head" style="margin-bottom:18px">
+    <div>
+      <span class="eyebrow">Operations control room</span>
+      <h1 data-split>Monitor Real-Time</h1>
+      <p>Requests and inventory as they change. Every update is a committed PostgreSQL change, published through Redis Pub/Sub and streamed here over Server-Sent Events — no polling.</p>
+    </div>
+    <div class="monitor-meta">
+      <span class="live-status" data-live-status data-state="offline"><i></i><span data-live-label>OFFLINE</span></span>
+      <span class="mono" title="Open live connections (Redis presence)">{{ icon('radio') }} <span data-viewers>{{ viewers }}</span> live</span>
+      <span class="mono">Last event <span data-last-event>—</span></span>
+    </div>
+  </header>
+  {% include "partials/monitor/board.njk" %}
+</div>
+{% endblock %}

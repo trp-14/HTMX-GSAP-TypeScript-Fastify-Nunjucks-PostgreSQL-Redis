@@ -1,0 +1,14 @@
+{% extends "layouts/app.njk" %}
+{% block title %}Edit #{{ request.requestNumber }}{% endblock %}
+{% block page %}request-form{% endblock %}
+{% block crumbs %}<a href="/requests">Requests</a><span>/</span><a href="/requests/{{ request.requestNumber }}">#{{ request.requestNumber }}</a><span>/</span><strong>Edit</strong>{% endblock %}
+{% block content %}
+<header class="page-head"><div><span class="eyebrow">#{{ request.requestNumber }}</span><h1 data-split>Edit request</h1><p>Requests can be edited by their requester while they are drafts or awaiting changes.</p></div></header>
+<form class="card glass" action="/requests/{{ request.requestNumber }}" hx-put="/requests/{{ request.requestNumber }}" hx-target="body" novalidate data-reveal="card">
+  {% include "partials/requests/form.njk" %}
+  <div class="form-actions">
+    <a class="btn btn-text" href="/requests/{{ request.requestNumber }}">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save changes<span class="spinner" aria-hidden="true"></span></button>
+  </div>
+</form>
+{% endblock %}

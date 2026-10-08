@@ -1,0 +1,12 @@
+{% from "components/forms.njk" import input, select, formError %}
+<section class="card glass" id="profile-card" data-reveal="card">
+  <div class="card-head"><h2>Profile</h2></div>
+  <form class="grid" style="gap:14px" hx-put="/account/profile" hx-target="#profile-card" hx-swap="outerHTML" novalidate>
+    {{ formError(errors) }}
+    {{ input('fullName', 'Full name', profile.fullName, 'text', errors, required=true, attrs='autocomplete="name"') }}
+    {{ input('jobTitle', 'Job title', profile.jobTitle, 'text', errors) }}
+    {{ select('departmentId', 'Department', departments | options('id', 'name'), profile.departmentId, errors, placeholder='Choose…', required=true) }}
+    <p class="hint muted" style="font-size:.78rem">Your email and roles are managed by an administrator.</p>
+    <div class="form-actions"><button class="btn btn-primary" type="submit">Save profile<span class="spinner" aria-hidden="true"></span></button></div>
+  </form>
+</section>

@@ -1,0 +1,19 @@
+{% extends "layouts/app.njk" %}
+{% from "components/ui.njk" import avatar, badge %}
+{% block title %}Account{% endblock %}
+{% block page %}account{% endblock %}
+{% block crumbs %}<strong>Account</strong>{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div style="display:flex;gap:16px;align-items:center">
+    {{ avatar(user.fullName, 64) }}
+    <div><span class="eyebrow">Your account</span><h1 data-split>{{ user.fullName }}</h1><p class="mono">{{ user.email }}</p></div>
+  </div>
+  <div class="chips">{% for r in user.roles %}{{ badge(r | humanize, 'ice', true) }}{% endfor %}</div>
+</header>
+<div class="grid grid-2">
+  {% include "partials/account/profile-form.njk" %}
+  {% include "partials/account/password-form.njk" %}
+</div>
+<div style="margin-top:18px">{% include "partials/account/sessions.njk" %}</div>
+{% endblock %}

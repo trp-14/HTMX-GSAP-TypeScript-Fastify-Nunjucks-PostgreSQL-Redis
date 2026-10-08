@@ -1,0 +1,10 @@
+{% from "components/icons.njk" import icon %}
+{#- Sortable column header. Sorting is done by the server; HTMX swaps only the results region. -#}
+{% macro sortHeader(label, key, query, baseUrl, target, cls='') %}
+{%- set active = query.sort == key -%}
+{%- set nextDir = 'asc' if (active and query.dir == 'desc') else ('desc' if active else 'asc') -%}
+<th class="{{ cls }}" {% if active %}aria-sort="{{ 'ascending' if query.dir == 'asc' else 'descending' }}"{% endif %}>
+  <a href="{{ baseUrl }}{{ query | qs({ sort: key, dir: nextDir, page: None }) }}" hx-get="{{ baseUrl }}{{ query | qs({ sort: key, dir: nextDir, page: None }) }}"
+     hx-target="#{{ target }}" hx-swap="outerHTML" hx-push-url="true">{{ label }}{{ icon('chevron-up' if active and query.dir == 'asc' else ('chevron-down' if active else 'sort')) }}</a>
+</th>
+{% endmacro %}

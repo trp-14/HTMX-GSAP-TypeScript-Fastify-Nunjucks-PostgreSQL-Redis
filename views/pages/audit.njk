@@ -1,0 +1,23 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% block title %}Audit Logs{% endblock %}
+{% block page %}audit{% endblock %}
+{% block crumbs %}<strong>Audit Logs</strong>{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div><span class="eyebrow">Administration</span><h1 data-split>Audit logs</h1><p>An append-only record written by backend services in the same transaction as each change. Nothing here comes from browser JavaScript.</p></div>
+</header>
+<form class="toolbar" action="/audit" method="get" hx-get="/audit" hx-target="#audit-results" hx-swap="outerHTML" hx-push-url="true"
+      hx-trigger="input changed delay:350ms from:input[name='q'], change from:select, change from:input[type='date'], submit" hx-indicator="#audit-ind">
+  <div class="grow input-icon">{{ icon('search') }}<label class="sr-only" for="a-q">Search</label><input class="input" id="a-q" type="search" name="q" value="{{ query.q }}" placeholder="Search entity id, action, user or details" autocomplete="off"><span class="spinner htmx-indicator" id="audit-ind"></span></div>
+  <label class="sr-only" for="a-actor">User</label>
+  <select class="select" id="a-actor" name="actor"><option value="">All users</option>{% for u in users %}<option value="{{ u.id }}" {{ 'selected' if query.actor == u.id }}>{{ u.fullName }}</option>{% endfor %}</select>
+  <label class="sr-only" for="a-entity">Entity</label>
+  <select class="select" id="a-entity" name="entity"><option value="">All entities</option>{% for e in entityTypes %}<option value="{{ e }}" {{ 'selected' if query.entity == e }}>{{ e | humanize }}</option>{% endfor %}</select>
+  <label class="sr-only" for="a-action">Action</label>
+  <select class="select" id="a-action" name="action"><option value="">All actions</option>{% for a in actions %}<option value="{{ a }}" {{ 'selected' if query.action == a }}>{{ a }}</option>{% endfor %}</select>
+  <label class="sr-only" for="a-from">From</label><input class="input" style="width:auto" id="a-from" type="date" name="from" value="{{ query.from }}" title="From date">
+  <label class="sr-only" for="a-to">To</label><input class="input" style="width:auto" id="a-to" type="date" name="to" value="{{ query.to }}" title="To date">
+</form>
+{% include "partials/audit/results.njk" %}
+{% endblock %}

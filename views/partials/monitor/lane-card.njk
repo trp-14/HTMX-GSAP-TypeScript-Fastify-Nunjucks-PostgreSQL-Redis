@@ -1,0 +1,6 @@
+{% from "components/ui.njk" import priorityBadge %}
+<a class="lane-card" href="/requests/{{ r.requestNumber }}" id="mreq-{{ r.id }}" data-request-card="{{ r.id }}" data-flip-id="mreq-{{ r.id }}" {% if isNew %}data-animate="enter"{% endif %}>
+  <span class="lc-top"><span class="req-no">#{{ r.requestNumber }}</span>{{ priorityBadge(r.priority) }}</span>
+  <span class="lc-title">{{ r.title }}</span>
+  <span class="lc-meta"><span>{{ r.requesterName }}</span><span title="{{ r.updatedAt | datetime }}">{{ r.updatedAt | ago }}</span></span>
+</a>

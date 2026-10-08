@@ -1,0 +1,12 @@
+{% from "components/forms.njk" import input, textarea, select, formError %}
+{{ formError(errors) }}
+<div class="form-grid">
+  {{ input('name', 'Product name', values.name, 'text', errors, required=true, attrs='maxlength="120"') }}
+  {{ input('sku', 'SKU', values.sku, 'text', errors, hint='Uppercase letters, digits and dashes.', required=true, attrs='maxlength="32" autocapitalize="characters" spellcheck="false"') }}
+  {{ select('categoryId', 'Category', categoryOptions, values.categoryId, errors, placeholder='Choose…', required=true) }}
+  {{ select('status', 'Status', statusOptions, values.status, errors, required=true) }}
+  {{ input('price', 'Unit price (IDR)', values.price, 'number', errors, required=true, attrs='min="0" step="1000"') }}
+  {{ input('reorderThreshold', 'Reorder threshold', values.reorderThreshold, 'number', errors, hint='At or below this quantity the product is flagged as low stock.', required=true, attrs='min="0" step="1"') }}
+  {% if creating %}{{ input('stockQuantity', 'Opening stock', values.stockQuantity, 'number', errors, hint='Recorded as the initial inventory movement.', attrs='min="0" step="1"') }}{% endif %}
+  {{ textarea('description', 'Description', values.description, errors, rows=5, cls='span-2') }}
+</div>

@@ -1,0 +1,11 @@
+{% from "components/ui.njk" import emptyState %}
+{% from "components/pagination.njk" import pagination %}
+<section id="user-results" class="table-card glass loading-region" data-module="listReveal">
+  {% if page.items.length %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Name</th><th>Department</th><th>Roles</th><th>Last sign-in</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody>{% for u in page.items %}{% include "partials/users/row.njk" %}{% endfor %}</tbody>
+  </table></div>
+  {{ pagination(page, query, '/users', 'user-results') }}
+  {% else %}{{ emptyState('No users found', 'Try another search or filter.', 'users') }}{% endif %}
+</section>

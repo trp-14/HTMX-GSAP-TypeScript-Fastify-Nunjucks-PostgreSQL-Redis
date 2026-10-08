@@ -1,0 +1,19 @@
+<div class="table-wrap" id="movement-list" {% if oob %}hx-swap-oob="true"{% endif %}>
+  {% if movements.length %}
+  <table class="table">
+    <thead><tr><th>When</th><th>Type</th><th class="right">Change</th><th class="right">Stock</th><th>By</th><th>Reason</th></tr></thead>
+    <tbody>
+    {% for m in movements %}
+      <tr {% if loop.first and fresh %}data-animate="enter"{% endif %}>
+        <td class="muted num" title="{{ m.createdAt | datetime }}">{{ m.createdAt | ago }}</td>
+        <td><span class="badge tone-{{ { RECEIPT: 'good', RETURN: 'info', ISSUE: 'warn', ADJUSTMENT: 'violet', INITIAL: 'muted' }[m.movementType] }}">{{ m.movementType | humanize }}</span></td>
+        <td class="right"><span class="movement-delta {{ 'pos' if m.quantityDelta > 0 else 'neg' }}">{{ '+' if m.quantityDelta > 0 }}{{ m.quantityDelta }}</span></td>
+        <td class="right num">{{ m.previousQuantity }} → <strong>{{ m.newQuantity }}</strong></td>
+        <td>{{ m.actorName or 'System' }}</td>
+        <td class="muted">{{ m.reason or '—' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">No movements recorded yet.</p>{% endif %}
+</div>

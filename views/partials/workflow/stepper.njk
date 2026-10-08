@@ -1,0 +1,9 @@
+{% from "components/icons.njk" import icon %}
+<ol class="stepper" data-module="stepper" data-status="{{ request.status }}" aria-label="Workflow progress">
+  {% for step in workflowSteps(request.status) %}
+  <li class="step {{ step.state }}" {% if step.state == 'branch' %}style="--tone:var(--{{ step.tone }})"{% endif %} {% if step.state == 'current' or step.state == 'branch' %}aria-current="step"{% endif %}>
+    <span class="node">{% if step.state == 'done' %}{{ icon('check') }}{% elif step.state == 'branch' %}{{ icon('x' if step.status == 'REJECTED' else 'edit') }}{% else %}{{ loop.index }}{% endif %}</span>
+    <span>{{ step.label }}</span>
+  </li>
+  {% endfor %}
+</ol>

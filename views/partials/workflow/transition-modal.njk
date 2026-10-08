@@ -1,0 +1,12 @@
+{% from "components/ui.njk" import modal %}
+{% from "components/forms.njk" import textarea %}
+{% call modal('transition-modal', rule.label + ' #' + request.requestNumber, 'Workflow decision') %}
+<p class="muted" style="margin-bottom:14px">“{{ request.title }}” will move from <strong>{{ (rule.from | statusMeta).label }}</strong> to <strong>{{ (rule.to | statusMeta).label }}</strong>. The requester is notified with your note.</p>
+<form hx-post="/requests/{{ request.requestNumber }}/transitions/{{ rule.action }}" hx-target="#workflow-panel" hx-swap="outerHTML" novalidate>
+  {{ textarea('note', 'Note for the requester', values.note if values else '', errors, required=rule.requiresNote, rows=4, attrs='maxlength="2000" autofocus') }}
+  <div class="form-actions">
+    <button class="btn btn-cream" type="button" data-close-modal>Cancel</button>
+    <button class="btn {{ 'btn-danger-cream' if rule.tone == 'negative' else 'btn-blue' }}" type="submit">{{ rule.label }}<span class="spinner" aria-hidden="true"></span></button>
+  </div>
+</form>
+{% endcall %}

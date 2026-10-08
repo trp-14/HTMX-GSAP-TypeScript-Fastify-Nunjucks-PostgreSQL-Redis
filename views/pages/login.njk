@@ -1,0 +1,39 @@
+{% extends "layouts/public.njk" %}
+{% from "components/icons.njk" import icon, logo %}
+{% from "components/forms.njk" import input, formError %}
+{% block title %}Sign in{% endblock %}
+{% block page %}auth{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <section class="auth-side">
+    <a class="brand" href="/">{{ logo() }}<span>FlowDesk</span></a>
+    <div data-reveal>
+      <span class="eyebrow">Operations workspace</span>
+      <h1 style="margin-top:14px">Every request, <em>in flow.</em></h1>
+      <p style="margin-top:18px">Submit, approve and fulfil business requests, keep inventory honest and watch it all happen live.</p>
+    </div>
+    <p class="mono muted">{{ settings.organizationName }} · Jakarta</p>
+  </section>
+  <section class="auth-panel">
+    <div class="auth-card cream" data-module="authCard">
+      <div><span class="eyebrow">Welcome back</span><h2>Sign in</h2></div>
+      {{ formError(errors) }}
+      <form method="post" action="/login" hx-target="body" novalidate>
+        <input type="hidden" name="next" value="{{ next }}">
+        {{ input('email', 'Work email', values.email, 'email', errors, required=true, attrs='autocomplete="username" autofocus') }}
+        {{ input('password', 'Password', '', 'password', errors, required=true, attrs='autocomplete="current-password"') }}
+        <button class="btn btn-blue" type="submit" style="width:100%;min-height:46px">Sign in<span class="spinner" aria-hidden="true"></span></button>
+      </form>
+      {% if settings.allowSelfRegistration %}<p class="muted" style="font-size:.88rem">New to FlowDesk? <a class="link" style="color:var(--blue)" href="/register">Create an account</a></p>{% endif %}
+      {% if demoAccounts.length %}
+      <div class="demo-accounts">
+        <span class="label">Demo accounts — click to fill</span>
+        {% for a in demoAccounts %}
+        <button type="button" data-demo-email="{{ a.email }}" data-demo-password="{{ demoPassword }}"><span>{{ a.email }}</span><small>{{ a.role }}</small></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

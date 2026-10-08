@@ -1,0 +1,70 @@
+{#- Presentation components. Inputs are already-computed values; no business rules here. -#}
+{% from "components/icons.njk" import icon %}
+
+{% macro button(label, variant='ghost', type='button', href=None, iconName=None, size=None, attrs='') %}
+{%- set cls = 'btn btn-' + variant + (' btn-sm' if size == 'sm' else '') -%}
+{% if href %}<a class="{{ cls }}" href="{{ href }}" {{ attrs | safe }}>{% if iconName %}{{ icon(iconName) }}{% endif %}<span>{{ label }}</span></a>
+{% else %}<button class="{{ cls }}" type="{{ type }}" {{ attrs | safe }}>{% if iconName %}{{ icon(iconName) }}{% endif %}<span>{{ label }}</span><span class="spinner" aria-hidden="true"></span></button>{% endif %}
+{%- endmacro %}
+
+{% macro badge(label, tone='muted', dot=false, attrs='') %}
+<span class="badge tone-{{ tone }}" {{ attrs | safe }}>{% if dot %}<i class="dot"></i>{% endif %}{{ label }}</span>
+{%- endmacro %}
+
+{% macro statusBadge(status) %}{% set m = status | statusMeta %}<span class="badge tone-{{ m.tone }}" data-status-badge="{{ status }}"><i class="dot"></i>{{ m.label }}</span>{% endmacro %}
+{% macro inventoryBadge(status) %}{% set m = status | inventoryMeta %}<span class="badge tone-{{ m.tone }}" data-inventory-badge="{{ status }}"><i class="dot"></i>{{ m.label }}</span>{% endmacro %}
+{% macro priorityBadge(p) %}{% set m = p | priorityMeta %}<span class="badge tone-{{ m.tone }}">{{ m.label }}</span>{% endmacro %}
+{% macro productStatusBadge(s) %}{% set m = s | productStatusMeta %}<span class="badge tone-{{ m.tone }}">{{ m.label }}</span>{% endmacro %}
+
+{% macro avatar(name, size=32, hue=None) %}
+{%- set h = hue if hue != None else ((name | length) * 37) % 360 -%}
+<span class="avatar" style="--size:{{ size }}px;--h:{{ h }}" aria-hidden="true">{{ name | initials }}</span>
+{%- endmacro %}
+
+{% macro stat(label, value, tone='ice', meta='', href=None, key=None) %}
+<div class="stat glass" style="--tone:var(--{{ tone }})" data-reveal="card" {% if key %}data-counter="{{ key }}"{% endif %}>
+  <span class="label"><i></i>{{ label }}</span>
+  {% if href %}<a class="value" href="{{ href }}" data-count-to="{{ value }}">{{ value | num }}</a>{% else %}<span class="value" data-count-to="{{ value }}">{{ value | num }}</span>{% endif %}
+  {% if meta %}<span class="meta">{{ meta }}</span>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro alert(title, body='', tone='info', iconName='info') %}
+<div class="alert" style="--tone:var(--{{ tone }})" role="{{ 'alert' if tone == 'bad' else 'status' }}">{{ icon(iconName) }}<div>{% if title %}<strong>{{ title }}</strong>{% endif %}{% if body %}<span>{{ body }}</span>{% endif %}</div></div>
+{%- endmacro %}
+
+{% macro emptyState(title, body='', iconName='inbox', actionLabel=None, actionHref=None) %}
+<div class="empty" data-reveal>
+  <div class="empty-art">{{ icon(iconName) }}</div>
+  <h3>{{ title }}</h3>
+  {% if body %}<p>{{ body }}</p>{% endif %}
+  {% if actionLabel %}<a class="btn btn-primary btn-sm" href="{{ actionHref }}">{{ actionLabel }}</a>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro loading(rows=3) %}
+<div class="grid" aria-busy="true" aria-label="Loading">{% for i in range(rows) %}<div class="skeleton" style="height:52px"></div>{% endfor %}</div>
+{%- endmacro %}
+
+{% macro meter(value, max, tone='good', size='') %}
+{%- set pct = value | pct(max) -%}
+<span class="meter {{ size }}" role="meter" aria-valuemin="0" aria-valuemax="{{ max }}" aria-valuenow="{{ value }}"><span class="fill" style="--v:{{ pct }}%;--tone:var(--{{ tone }})"></span></span>
+{%- endmacro %}
+
+{% macro stockMeter(qty, threshold, status) %}
+{%- set tone = 'bad' if status == 'OUT_OF_STOCK' else ('warn' if status == 'LOW_STOCK' else 'good') -%}
+{%- set cap = [threshold * 3, qty, 1] | max -%}
+{{ meter(qty, cap, tone) }}
+{%- endmacro %}
+
+{% macro modal(id, title, eyebrow='', wide=false) %}
+<div class="modal" id="{{ id }}" role="dialog" aria-modal="true" aria-labelledby="{{ id }}-title" data-module="modal">
+  <div class="modal-scrim" data-close-modal></div>
+  <div class="modal-card cream{{ ' wide' if wide }}" data-modal-card>
+    <button class="icon-btn btn-cream modal-close" type="button" data-close-modal aria-label="Close dialog">{{ icon('x') }}</button>
+    {% if eyebrow %}<span class="eyebrow">{{ eyebrow }}</span>{% endif %}
+    <h2 id="{{ id }}-title">{{ title }}</h2>
+    {{ caller() }}
+  </div>
+</div>
+{%- endmacro %}

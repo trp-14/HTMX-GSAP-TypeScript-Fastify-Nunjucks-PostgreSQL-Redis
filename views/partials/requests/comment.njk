@@ -1,0 +1,8 @@
+{% from "components/ui.njk" import avatar %}
+<article class="comment{{ ' mine' if comment.authorId == user.id }}" id="comment-{{ comment.id }}" {% if isNew %}data-animate="enter"{% endif %}>
+  {{ avatar(comment.authorName, 32) }}
+  <div class="bubble">
+    <div class="c-head"><strong>{{ comment.authorName }}</strong>{% if comment.authorTitle %}<span class="muted">{{ comment.authorTitle }}</span>{% endif %}<span class="faint mono" title="{{ comment.createdAt | datetime }}">{{ comment.createdAt | ago }}</span></div>
+    <div class="c-body">{{ comment.body }}</div>
+  </div>
+</article>

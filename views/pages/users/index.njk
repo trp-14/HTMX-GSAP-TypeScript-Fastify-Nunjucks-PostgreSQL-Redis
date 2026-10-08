@@ -1,0 +1,22 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% block title %}Users{% endblock %}
+{% block page %}users{% endblock %}
+{% block crumbs %}<strong>Users</strong>{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div><span class="eyebrow">Administration</span><h1 data-split>Users & roles</h1><p>Role changes and deactivations take effect immediately — affected sessions are revoked in Redis.</p></div>
+  <div class="actions"><a class="btn btn-primary" href="/users/new">{{ icon('plus') }}<span>New user</span></a></div>
+</header>
+<form class="toolbar" action="/users" method="get" hx-get="/users" hx-target="#user-results" hx-swap="outerHTML" hx-push-url="true"
+      hx-trigger="input changed delay:300ms from:input[name='q'], change from:select, submit">
+  <div class="grow input-icon">{{ icon('search') }}<label class="sr-only" for="u-q">Search users</label><input class="input" id="u-q" type="search" name="q" value="{{ query.q }}" placeholder="Search name, email or title" autocomplete="off"></div>
+  <label class="sr-only" for="u-role">Role</label>
+  <select class="select" id="u-role" name="role"><option value="">All roles</option>{% for o in roleOptions %}<option value="{{ o.value }}" {{ 'selected' if query.role == o.value }}>{{ o.label }}</option>{% endfor %}</select>
+  <label class="sr-only" for="u-dept">Department</label>
+  <select class="select" id="u-dept" name="department"><option value="">All departments</option>{% for o in departmentOptions %}<option value="{{ o.value }}" {{ 'selected' if query.department | same(o.value) }}>{{ o.label }}</option>{% endfor %}</select>
+  <label class="sr-only" for="u-status">Status</label>
+  <select class="select" id="u-status" name="status"><option value="">Any status</option><option value="active" {{ 'selected' if query.status == 'active' }}>Active</option><option value="inactive" {{ 'selected' if query.status == 'inactive' }}>Deactivated</option></select>
+</form>
+{% include "partials/users/results.njk" %}
+{% endblock %}

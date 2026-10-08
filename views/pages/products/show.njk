@@ -1,0 +1,50 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% from "components/ui.njk" import inventoryBadge, productStatusBadge %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block page %}product-detail{% endblock %}
+{% block crumbs %}<a href="/products">Products</a><span>/</span><strong>{{ product.sku }}</strong>{% endblock %}
+{% block content %}
+<div data-module="productLive" data-product-id="{{ product.id }}">
+<section class="product-hero">
+  {% include "partials/products/image.njk" %}
+  <div class="product-info glass" data-detail-reveal>
+    <div class="chips"><span class="badge tone-ice">{{ product.categoryName }}</span>{{ productStatusBadge(product.status) }}</div>
+    <h1 data-split>{{ product.name }}</h1>
+    <p class="mono muted">SKU {{ product.sku }}</p>
+    <p class="muted">{{ product.description or 'No description.' }}</p>
+    <dl class="facts">
+      <div class="fact"><dt>Unit price</dt><dd class="num">{{ product.price | money }}</dd></div>
+      <div class="fact"><dt>Reorder at</dt><dd class="num">{{ product.reorderThreshold | num }} units</dd></div>
+      <div class="fact"><dt>Stock value</dt><dd class="num" data-stock-value data-price="{{ product.price }}">{{ (product.price * product.stockQuantity) | money }}</dd></div>
+    </dl>
+    {% if can['product:manage'] %}
+    <div class="actions-panel">
+      <a class="btn btn-ghost btn-sm" href="/products/{{ product.id }}/edit">{{ icon('edit') }}<span>Edit product</span></a>
+      <button class="btn btn-negative btn-sm" type="button" hx-delete="/products/{{ product.id }}" data-confirm="Delete {{ product.name }}? Products with inventory history must be discontinued instead.">{{ icon('trash') }}<span>Delete</span></button>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<div class="split">
+  <div class="grid">
+    {% include "partials/products/stock-panel.njk" %}
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Inventory movements</h2><span class="muted mono">latest 15</span></div>
+      {% include "partials/products/movements.njk" %}
+    </section>
+  </div>
+  <div class="grid">
+    {% if can['inventory:adjust'] %}{% include "partials/products/adjust-form.njk" %}{% endif %}
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>How stock status works</h2></div>
+      <div class="kv"><span>{{ inventoryBadge('IN_STOCK') }}</span><span class="mono">qty &gt; {{ product.reorderThreshold }}</span></div>
+      <div class="kv"><span>{{ inventoryBadge('LOW_STOCK') }}</span><span class="mono">1 – {{ product.reorderThreshold }}</span></div>
+      <div class="kv"><span>{{ inventoryBadge('OUT_OF_STOCK') }}</span><span class="mono">qty = 0</span></div>
+      <p class="muted" style="font-size:.8rem;margin-top:10px">Stock can never go below zero — the service rejects it and PostgreSQL enforces it with a CHECK constraint.</p>
+    </section>
+  </div>
+</div>
+</div>
+{% endblock %}

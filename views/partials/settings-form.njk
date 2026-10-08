@@ -1,0 +1,15 @@
+{% from "components/forms.njk" import input, checkbox, formError %}
+<section class="card glass" id="settings-card" data-reveal="card">
+  <form class="grid" style="gap:16px" hx-put="/settings" hx-target="#settings-card" hx-swap="outerHTML" novalidate>
+    {{ formError(errors) }}
+    <div class="form-grid">
+      {{ input('organizationName', 'Organisation name', values.organizationName, 'text', errors, required=true) }}
+      {{ input('supportEmail', 'Support email', values.supportEmail, 'email', errors, required=true) }}
+      {{ input('defaultDueDays', 'Default due days', values.defaultDueDays, 'number', errors, hint='Used when a request type has no SLA.', attrs='min="1" max="90"') }}
+      {{ input('maintenanceBanner', 'Maintenance banner', values.maintenanceBanner, 'text', errors, hint='Shown at the top of every page when set.', attrs='maxlength="200"') }}
+    </div>
+    {{ checkbox('lowStockNotifications', 'Send low-stock and out-of-stock notifications', values.lowStockNotifications, hint='Operations staff and admins are notified when a product crosses its threshold.') }}
+    {{ checkbox('allowSelfRegistration', 'Allow self-registration', values.allowSelfRegistration, hint='New accounts always start with the Employee role.') }}
+    <div class="form-actions"><button class="btn btn-primary" type="submit">Save settings<span class="spinner" aria-hidden="true"></span></button></div>
+  </form>
+</section>

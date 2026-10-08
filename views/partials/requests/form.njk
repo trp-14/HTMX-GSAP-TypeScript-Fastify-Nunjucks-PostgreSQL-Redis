@@ -1,0 +1,13 @@
+{% from "components/forms.njk" import input, textarea, select, formError, csrf %}
+{#- Shared by create and edit. `method` is post (create) or put (edit, via hx-put). -#}
+{{ formError(errors) }}
+<div class="form-grid">
+  {{ input('title', 'Title', values.title, 'text', errors, required=true, cls='span-2', attrs='maxlength="160" placeholder="e.g. Laptop replacement for new finance analyst"') }}
+  {{ select('typeId', 'Request type', typeOptions, values.typeId, errors, placeholder='Choose a type…', required=true) }}
+  {{ select('priority', 'Priority', priorityOptions, values.priority, errors, required=true) }}
+  {{ textarea('description', 'Description', values.description, errors, hint='Explain what you need, why, and any deadlines or budget codes.', required=true, rows=7, cls='span-2') }}
+  {{ input('dueDate', 'Due date', values.dueDate, 'date', errors, hint='Leave empty to use the SLA for the request type.') }}
+  <div class="field"><span class="label">Service levels</span>
+    <div class="chips">{% for t in types %}<span class="tag" title="{{ t.description }}">{{ t.name }} · {{ t.slaDays }}d</span>{% endfor %}</div>
+  </div>
+</div>

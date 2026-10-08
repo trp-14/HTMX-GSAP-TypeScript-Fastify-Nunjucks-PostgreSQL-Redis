@@ -1,0 +1,47 @@
+{% from "components/ui.njk" import statusBadge, priorityBadge, avatar, emptyState %}
+{% from "components/icons.njk" import icon %}
+{% from "components/table.njk" import sortHeader %}
+{% from "components/pagination.njk" import pagination %}
+<section id="request-results" class="table-card glass loading-region" data-module="listReveal" aria-live="polite">
+  {% if page.items.length %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr>
+        {{ sortHeader('No.', 'number', query, '/requests', 'request-results') }}
+        {{ sortHeader('Request', 'title', query, '/requests', 'request-results') }}
+        {{ sortHeader('Status', 'status', query, '/requests', 'request-results') }}
+        {{ sortHeader('Priority', 'priority', query, '/requests', 'request-results') }}
+        <th>Requester</th>
+        <th>Assignee</th>
+        {{ sortHeader('Due', 'due', query, '/requests', 'request-results') }}
+        {{ sortHeader('Updated', 'updated', query, '/requests', 'request-results') }}
+        <th><span class="sr-only">Actions</span></th>
+      </tr></thead>
+      <tbody>
+      {% for r in page.items %}
+        <tr id="req-row-{{ r.requestNumber }}" data-list-item>
+          <td><span class="req-no">#{{ r.requestNumber }}</span></td>
+          <td class="title-cell"><a href="/requests/{{ r.requestNumber }}">{{ r.title }}</a><span class="sub">{{ r.typeName }} · {{ r.departmentName }}{% if r.commentCount %} · {{ r.commentCount }} comment{{ 's' if r.commentCount != 1 }}{% endif %}</span></td>
+          <td>{{ statusBadge(r.status) }}</td>
+          <td>{{ priorityBadge(r.priority) }}</td>
+          <td><span style="display:flex;gap:8px;align-items:center">{{ avatar(r.requesterName, 26) }}<span>{{ r.requesterName }}</span></span></td>
+          <td>{% if r.assigneeName %}{{ r.assigneeName }}{% else %}<span class="faint">Unassigned</span>{% endif %}</td>
+          <td class="num {{ 'overdue' if r.dueDate | isOverdue(r.status) }}">{{ r.dueDate | date if r.dueDate else '—' }}</td>
+          <td class="muted num" title="{{ r.updatedAt | datetime }}">{{ r.updatedAt | ago }}</td>
+          <td class="right">
+            {% if (r.status == 'DRAFT' and r.requesterId == user.id) or can['request:delete:any'] %}
+            <button class="btn btn-text btn-sm btn-icon" type="button" aria-label="Delete request #{{ r.requestNumber }}"
+                    hx-delete="/requests/{{ r.requestNumber }}?from=list" hx-target="closest tr" hx-swap="outerHTML swap:300ms"
+                    data-confirm="Delete request #{{ r.requestNumber }}? This cannot be undone.">{{ icon('trash') }}</button>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pagination(page, query, '/requests', 'request-results') }}
+  {% else %}
+    {{ emptyState('No requests match', 'Try a different search or clear the filters.' if (query.q or query.status or query.priority or query.type or query.scope) else 'Nothing here yet. Create your first request to get things moving.', 'inbox', 'New request' if can['request:create'] else None, '/requests/new') }}
+  {% endif %}
+</section>

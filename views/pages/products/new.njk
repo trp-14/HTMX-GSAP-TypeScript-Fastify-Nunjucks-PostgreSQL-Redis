@@ -1,0 +1,11 @@
+{% extends "layouts/app.njk" %}
+{% block title %}New product{% endblock %}
+{% block page %}product-form{% endblock %}
+{% block crumbs %}<a href="/products">Products</a><span>/</span><strong>New</strong>{% endblock %}
+{% block content %}
+<header class="page-head"><div><span class="eyebrow">Catalogue</span><h1 data-split>New product</h1><p>Inventory status is derived from stock and the reorder threshold — you never set it by hand.</p></div></header>
+<form class="card glass" action="/products" hx-post="/products" hx-target="body" novalidate data-reveal="card">
+  {% set creating = true %}{% include "partials/products/form.njk" %}
+  <div class="form-actions"><a class="btn btn-text" href="/products">Cancel</a><button class="btn btn-primary" type="submit">Create product<span class="spinner" aria-hidden="true"></span></button></div>
+</form>
+{% endblock %}

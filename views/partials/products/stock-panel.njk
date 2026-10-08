@@ -1,0 +1,14 @@
+{% from "components/ui.njk" import inventoryBadge, stockMeter %}
+{% from "components/icons.njk" import icon %}
+{%- set cls = ' is-out' if product.inventoryStatus == 'OUT_OF_STOCK' else (' is-low' if product.inventoryStatus == 'LOW_STOCK' else '') -%}
+<section class="stock-panel glass{{ cls }}" id="stock-panel" data-reveal="card"
+         data-quantity="{{ product.stockQuantity }}" data-status="{{ product.inventoryStatus }}" data-threshold="{{ product.reorderThreshold }}" {% if oob %}hx-swap-oob="true"{% endif %}>
+  <div class="card-head" style="margin:0"><h2>Stock on hand</h2>{{ inventoryBadge(product.inventoryStatus) }}</div>
+  <div class="stock-figure"><span class="stock-number" data-stock-number>{{ product.stockQuantity }}</span><span class="muted">units</span></div>
+  {{ stockMeter(product.stockQuantity, product.reorderThreshold, product.inventoryStatus) }}
+  <div class="alert threshold-alert" style="--tone:var(--{{ 'bad' if product.inventoryStatus == 'OUT_OF_STOCK' else 'warn' }})" role="status">
+    {{ icon('alert') }}<div><strong>{{ 'Out of stock' if product.inventoryStatus == 'OUT_OF_STOCK' else 'Below reorder threshold' }}</strong>
+    <span>{{ 'Requests needing this item cannot be fulfilled until stock is received.' if product.inventoryStatus == 'OUT_OF_STOCK' else 'Reorder soon — ' + product.stockQuantity + ' left, threshold is ' + product.reorderThreshold + '.' }}</span></div>
+  </div>
+  <p class="mono faint" style="font-size:.72rem">Updated {{ product.updatedAt | ago }}</p>
+</section>

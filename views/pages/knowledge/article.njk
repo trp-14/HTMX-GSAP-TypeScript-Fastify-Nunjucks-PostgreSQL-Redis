@@ -1,0 +1,37 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% block title %}{{ article.title }}{% endblock %}
+{% block page %}article{% endblock %}
+{% block crumbs %}<a href="/knowledge">Knowledge Center</a><span>/</span><a href="/knowledge?category={{ article.categorySlug }}">{{ article.categoryName }}</a>{% endblock %}
+{% block content %}
+<div class="reading-progress" data-reading-progress aria-hidden="true"></div>
+<div class="article-layout" data-module="article">
+  <article class="article glass">
+    <header class="article-head">
+      <span class="eyebrow">{{ article.categoryName }}</span>
+      <h1 data-split>{{ article.title }}</h1>
+      <p class="lede">{{ article.summary }}</p>
+      <div class="kb-card" style="padding:0;background:none;box-shadow:none"><div class="meta">
+        <span>{{ article.readingMinutes }} min read</span><span>Updated {{ article.updatedAt | date }}</span>{% if article.authorName %}<span>By {{ article.authorName }}</span>{% endif %}
+      </div></div>
+      <div class="tags">{% for t in article.tags %}<a class="tag" href="/knowledge?q={{ t }}">#{{ t }}</a>{% endfor %}</div>
+    </header>
+    {#- The body is rendered by utils/markdown.ts, which escapes all HTML before adding a fixed tag set. -#}
+    <div class="prose">{{ html | safe }}</div>
+  </article>
+  <aside class="grid" style="position:sticky;top:90px">
+    {% if headings.length %}
+    <nav class="toc" aria-label="On this page" data-toc>
+      <span class="eyebrow" style="margin-bottom:6px">On this page</span>
+      {% for h in headings %}<a class="lvl-{{ h.level }}" href="#{{ h.id }}" hx-boost="false">{{ h.text }}</a>{% endfor %}
+    </nav>
+    {% endif %}
+    {% if related.length %}
+    <div class="grid" style="gap:10px">
+      <span class="eyebrow">Related articles</span>
+      {% for r in related %}<a class="kb-card glass" href="/knowledge/{{ r.slug }}" style="padding:14px 16px"><span class="mono faint" style="font-size:.7rem">{{ r.categoryName }}</span><strong>{{ r.title }}</strong></a>{% endfor %}
+    </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

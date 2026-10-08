@@ -1,0 +1,38 @@
+{% from "components/icons.njk" import icon %}
+{#- The workflow panel. Buttons are rendered from the engine's availableTransitions(), but every
+    action is re-validated on the server — the UI is a convenience, not the authority. -#}
+<section class="card glass" id="workflow-panel" data-reveal="card" data-status="{{ request.status }}">
+  <div class="card-head">
+    <h2>Workflow</h2>
+    <span class="muted mono">{{ (request.status | statusMeta).label }}</span>
+  </div>
+  {% include "partials/workflow/stepper.njk" %}
+  <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-top:20px">
+    <p class="muted" style="font-size:.86rem;max-width:52ch">
+      {% if request.status == 'DRAFT' %}Only you can see this draft. Submit it when it's ready for review.
+      {% elif request.status == 'SUBMITTED' %}Waiting for a manager to pick it up for review.
+      {% elif request.status == 'UNDER_REVIEW' %}A manager is reviewing this request.
+      {% elif request.status == 'CHANGES_REQUESTED' %}The reviewer asked for changes. Edit the request, then resubmit.
+      {% elif request.status == 'APPROVED' %}Approved — operations can start processing.
+      {% elif request.status == 'PROCESSING' %}Operations is fulfilling this request.
+      {% elif request.status == 'COMPLETED' %}Completed{% if request.completedAt %} {{ request.completedAt | ago }}{% endif %}. Nothing left to do.
+      {% elif request.status == 'REJECTED' %}This request was rejected and is closed.{% endif %}
+    </p>
+    {% if actions.length %}
+    <div class="actions-panel">
+      {% for a in actions %}
+        {% set variant = { 'primary': 'primary', 'positive': 'positive', 'negative': 'negative', 'neutral': 'neutral' }[a.tone] %}
+        {% if a.requiresNote %}
+          <button class="btn btn-{{ variant }}" type="button" hx-get="/requests/{{ request.requestNumber }}/transitions/{{ a.action }}" hx-target="#modal-root" hx-swap="innerHTML">{{ a.label }}</button>
+        {% else %}
+          <button class="btn btn-{{ variant }}" type="button" hx-post="/requests/{{ request.requestNumber }}/transitions/{{ a.action }}"
+                  hx-target="#workflow-panel" hx-swap="outerHTML" hx-disabled-elt="this" data-workflow-action="{{ a.action }}">
+            {% if a.action == 'approve' or a.action == 'complete' %}{{ icon('check') }}{% elif a.action == 'submit' or a.action == 'resubmit' %}{{ icon('send') }}{% else %}{{ icon('arrow-right') }}{% endif %}
+            <span>{{ a.label }}</span><span class="spinner" aria-hidden="true"></span>
+          </button>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>

@@ -1,0 +1,15 @@
+{% from "components/icons.njk" import icon %}
+<section class="card glass" id="sessions-card" data-reveal="card">
+  <div class="card-head"><h2>Active sessions</h2><span class="muted mono">stored in Redis · expire after inactivity</span></div>
+  {% for s in sessions %}
+  <div class="session-row">
+    <div style="display:flex;gap:12px;align-items:center;min-width:0">
+      <span class="icon-btn" aria-hidden="true">{{ icon('monitor') }}</span>
+      <div style="min-width:0"><strong style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:52ch">{{ s.userAgent or 'Unknown device' }}</strong>
+      <span class="muted mono" style="font-size:.74rem">{{ s.ip }} · signed in {{ s.createdAt | datetime }} · active {{ s.lastSeenAt | ago }}</span></div>
+    </div>
+    {% if s.current %}<span class="badge tone-good"><i class="dot"></i>This device</span>
+    {% else %}<button class="btn btn-negative btn-sm" type="button" hx-delete="/account/sessions/{{ s.id }}" hx-target="#sessions-card" hx-swap="outerHTML">Sign out</button>{% endif %}
+  </div>
+  {% endfor %}
+</section>

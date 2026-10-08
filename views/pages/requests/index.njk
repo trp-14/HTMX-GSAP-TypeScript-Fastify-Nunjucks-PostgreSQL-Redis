@@ -1,0 +1,49 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% block title %}Requests{% endblock %}
+{% block page %}requests{% endblock %}
+{% block crumbs %}<strong>Requests</strong>{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <span class="eyebrow">Workflow</span>
+    <h1 data-split>Requests</h1>
+    <p>{% if can['request:read:all'] %}Every request across the organisation — search, filter and act without leaving the page.{% else %}Requests you have raised or that are assigned to you.{% endif %}</p>
+  </div>
+  <div class="actions">
+    {% if can['request:create'] %}<a class="btn btn-primary" href="/requests/new">{{ icon('plus') }}<span>New request</span></a>{% endif %}
+  </div>
+</header>
+
+{#- One form drives search, filters and scope. Any change re-fetches only #request-results. -#}
+<form class="toolbar" action="/requests" method="get" role="search"
+      hx-get="/requests" hx-target="#request-results" hx-swap="outerHTML" hx-push-url="true"
+      hx-trigger="input changed delay:300ms from:input[name='q'], change from:select, submit" hx-indicator="#req-search-ind">
+  <div class="grow input-icon">
+    {{ icon('search') }}
+    <label class="sr-only" for="req-q">Search requests</label>
+    <input class="input" id="req-q" type="search" name="q" value="{{ query.q }}" placeholder="Search title, description, requester or #number" autocomplete="off">
+    <span class="spinner htmx-indicator" id="req-search-ind" aria-hidden="true"></span>
+  </div>
+  <label class="sr-only" for="req-status">Status</label>
+  <select class="select" id="req-status" name="status"><option value="">All statuses</option>{% for o in statusOptions %}<option value="{{ o.value }}" {{ 'selected' if query.status == o.value }}>{{ o.label }}</option>{% endfor %}</select>
+  <label class="sr-only" for="req-priority">Priority</label>
+  <select class="select" id="req-priority" name="priority"><option value="">Any priority</option>{% for o in priorityOptions %}<option value="{{ o.value }}" {{ 'selected' if query.priority == o.value }}>{{ o.label }}</option>{% endfor %}</select>
+  <label class="sr-only" for="req-type">Type</label>
+  <select class="select" id="req-type" name="type"><option value="">All types</option>{% for o in typeOptions %}<option value="{{ o.value }}" {{ 'selected' if query.type | same(o.value) }}>{{ o.label }}</option>{% endfor %}</select>
+  {% if can['request:read:all'] %}
+  <label class="sr-only" for="req-dept">Department</label>
+  <select class="select" id="req-dept" name="department"><option value="">All departments</option>{% for o in departmentOptions %}<option value="{{ o.value }}" {{ 'selected' if query.department | same(o.value) }}>{{ o.label }}</option>{% endfor %}</select>
+  {% endif %}
+  <label class="sr-only" for="req-scope">Scope</label>
+  <select class="select" id="req-scope" name="scope">
+    <option value="">{{ 'Everything' if can['request:read:all'] else 'All mine' }}</option>
+    <option value="mine" {{ 'selected' if query.scope == 'mine' }}>Created by me</option>
+    <option value="assigned" {{ 'selected' if query.scope == 'assigned' }}>Assigned to me</option>
+    <option value="overdue" {{ 'selected' if query.scope == 'overdue' }}>Overdue</option>
+  </select>
+  <noscript><button class="btn btn-ghost" type="submit">Apply</button></noscript>
+</form>
+
+{% include "partials/requests/results.njk" %}
+{% endblock %}

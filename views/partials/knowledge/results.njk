@@ -1,0 +1,16 @@
+{% from "components/ui.njk" import emptyState %}
+{% from "components/pagination.njk" import pagination %}
+<section id="kb-results" class="kb-results loading-region" data-module="listReveal" data-category="{{ query.category or '' }}" aria-live="polite">
+  <p class="result-meta"><span>{% if query.q %}{{ results.total }} result{{ 's' if results.total != 1 }} for “{{ query.q }}”{% else %}{{ category.name if category else 'All articles' }} · {{ results.total }}{% endif %}</span></p>
+  {% for a in results.items %}
+  <article class="kb-card glass" data-list-item>
+    <span class="eyebrow">{{ a.categoryName }}</span>
+    <h3><a href="/knowledge/{{ a.slug }}">{{ a.title }}</a></h3>
+    <p>{% if a.snippetHtml %}…{{ a.snippetHtml | safe }}…{% else %}{{ a.summary }}{% endif %}</p>
+    <div class="meta"><span>{{ a.readingMinutes }} min read</span><span>Updated {{ a.updatedAt | date }}</span>{% if a.authorName %}<span>{{ a.authorName }}</span>{% endif %}</div>
+  </article>
+  {% else %}
+  <div class="card glass">{{ emptyState('Nothing matched', 'Try fewer or different words — search covers titles, summaries and full article text.', 'search') }}</div>
+  {% endfor %}
+  <div>{{ pagination(results, query, '/knowledge', 'kb-results') }}</div>
+</section>

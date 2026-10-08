@@ -1,0 +1,16 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% block title %}New request{% endblock %}
+{% block page %}request-form{% endblock %}
+{% block crumbs %}<a href="/requests">Requests</a><span>/</span><strong>New</strong>{% endblock %}
+{% block content %}
+<header class="page-head"><div><span class="eyebrow">Create</span><h1 data-split>New request</h1><p>Save it as a draft, or submit it straight to your managers for review.</p></div></header>
+<form class="card glass" method="post" action="/requests" hx-post="/requests" hx-target="body" novalidate data-reveal="card">
+  {% include "partials/requests/form.njk" %}
+  <div class="form-actions">
+    <a class="btn btn-text" href="/requests">Cancel</a>
+    <button class="btn btn-ghost" type="submit" name="intent" value="draft">Save draft<span class="spinner" aria-hidden="true"></span></button>
+    <button class="btn btn-primary" type="submit" name="intent" value="submit">{{ icon('send') }}<span>Submit for review</span><span class="spinner" aria-hidden="true"></span></button>
+  </div>
+</form>
+{% endblock %}

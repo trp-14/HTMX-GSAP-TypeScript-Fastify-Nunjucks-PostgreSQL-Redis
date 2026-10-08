@@ -1,0 +1,36 @@
+{% extends "layouts/public.njk" %}
+{% from "components/icons.njk" import logo %}
+{% from "components/forms.njk" import input, select, formError %}
+{% block title %}Create account{% endblock %}
+{% block page %}auth{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <section class="auth-side">
+    <a class="brand" href="/">{{ logo() }}<span>FlowDesk</span></a>
+    <div data-reveal>
+      <span class="eyebrow">Join your team</span>
+      <h1 style="margin-top:14px">Start with a <em>request.</em></h1>
+      <p style="margin-top:18px">New accounts start as employees. An administrator can grant manager, operations or admin access later.</p>
+    </div>
+    <p class="mono muted">Passwords are hashed with scrypt · sessions live in Redis</p>
+  </section>
+  <section class="auth-panel">
+    <div class="auth-card cream" style="width:min(520px,100%)">
+      <div><span class="eyebrow">Create account</span><h2>Get started</h2></div>
+      {{ formError(errors) }}
+      <form method="post" action="/register" hx-target="body" novalidate>
+        <div class="form-grid">
+          {{ input('fullName', 'Full name', values.fullName, 'text', errors, required=true, cls='span-2', attrs='autocomplete="name"') }}
+          {{ input('email', 'Work email', values.email, 'email', errors, required=true, cls='span-2', attrs='autocomplete="email"') }}
+          {{ select('departmentId', 'Department', departments | options('id', 'name'), values.departmentId, errors, placeholder='Choose…', required=true) }}
+          {{ input('jobTitle', 'Job title', values.jobTitle, 'text', errors) }}
+          {{ input('password', 'Password', '', 'password', errors, hint='At least 10 characters, mixing letters with numbers or symbols.', required=true, attrs='autocomplete="new-password"') }}
+          {{ input('confirmPassword', 'Confirm password', '', 'password', errors, required=true, attrs='autocomplete="new-password"') }}
+        </div>
+        <button class="btn btn-blue" type="submit" style="width:100%;min-height:46px;margin-top:6px">Create account<span class="spinner" aria-hidden="true"></span></button>
+      </form>
+      <p class="muted" style="font-size:.88rem">Already have an account? <a class="link" style="color:var(--blue)" href="/login">Sign in</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

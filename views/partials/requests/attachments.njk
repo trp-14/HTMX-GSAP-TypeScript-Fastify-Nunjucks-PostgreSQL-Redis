@@ -1,0 +1,28 @@
+{% from "components/icons.njk" import icon %}
+<section class="card glass" id="attachments-card" data-reveal="card">
+  <div class="card-head"><h2>Documents</h2><span class="muted mono">{{ attachments.length }}</span></div>
+  <div class="files">
+    {% for a in attachments %}
+    <div class="file" data-list-item>
+      <span class="f-icon">{{ a.originalName.split('.') | last }}</span>
+      <div class="f-meta">
+        <a href="/attachments/{{ a.id }}/download" hx-boost="false" target="_blank" rel="noopener">{{ a.originalName }}</a>
+        <span>{{ a.sizeBytes | bytes }} · {{ a.uploaderName }} · {{ a.createdAt | ago }}</span>
+      </div>
+      {% if can['request:delete:any'] or (a.uploadedBy == user.id and permissions.attach) %}
+      <button class="btn btn-text btn-sm btn-icon" type="button" aria-label="Remove {{ a.originalName }}" hx-delete="/attachments/{{ a.id }}"
+              hx-target="#attachments-card" hx-swap="outerHTML" data-confirm="Remove {{ a.originalName }}?">{{ icon('trash') }}</button>
+      {% endif %}
+    </div>
+    {% else %}<p class="muted" style="font-size:.88rem">No documents attached.</p>{% endfor %}
+  </div>
+  {% if permissions.attach %}
+  <form class="dropzone" style="margin-top:12px" hx-post="/requests/{{ request.requestNumber }}/attachments" hx-encoding="multipart/form-data"
+        hx-target="#attachments-card" hx-swap="outerHTML">
+    <label class="sr-only" for="file">Upload a document</label>
+    <input id="file" type="file" name="file" accept="{{ acceptTypes }}" required>
+    <button class="btn btn-ghost btn-sm" type="submit">{{ icon('paperclip') }}<span>Upload</span><span class="spinner" aria-hidden="true"></span></button>
+    <span class="hint muted" style="width:100%;font-size:.74rem">PDF, images, Office documents, CSV or text · max {{ (10) }} MB</span>
+  </form>
+  {% endif %}
+</section>

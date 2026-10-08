@@ -1,0 +1,52 @@
+{% from "components/ui.njk" import inventoryBadge, productStatusBadge, stockMeter, emptyState %}
+{% from "components/product-art.njk" import productVisual %}
+{% from "components/table.njk" import sortHeader %}
+{% from "components/pagination.njk" import pagination %}
+<section id="product-results" class="loading-region" data-module="listReveal" data-view="{{ view }}" aria-live="polite">
+  <p class="result-meta"><span>{{ page.total | num }} product{{ 's' if page.total != 1 }}</span></p>
+  {% if not page.items.length %}
+    <div class="card glass">{{ emptyState('No products found', 'Adjust the search or filters to see more of the catalogue.', 'box') }}</div>
+  {% elif view == 'table' %}
+  <div class="table-card glass">
+    <div class="table-wrap"><table class="table">
+      <thead><tr>
+        {{ sortHeader('Product', 'name', query, '/products', 'product-results') }}
+        {{ sortHeader('SKU', 'sku', query, '/products', 'product-results') }}
+        {{ sortHeader('Category', 'category', query, '/products', 'product-results') }}
+        {{ sortHeader('Price', 'price', query, '/products', 'product-results', 'right') }}
+        {{ sortHeader('Stock', 'stock', query, '/products', 'product-results', 'right') }}
+        <th>Inventory</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+      {% for p in page.items %}
+        <tr data-list-item data-product-row="{{ p.id }}">
+          <td class="title-cell"><a href="/products/{{ p.id }}">{{ p.name }}</a></td>
+          <td class="mono">{{ p.sku }}</td>
+          <td>{{ p.categoryName }}</td>
+          <td class="right num">{{ p.price | money }}</td>
+          <td class="right num" data-stock-qty>{{ p.stockQuantity | num }}</td>
+          <td>{{ inventoryBadge(p.inventoryStatus) }}</td>
+          <td>{{ productStatusBadge(p.status) }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {{ pagination(page, query, '/products', 'product-results') }}
+  </div>
+  {% else %}
+  <div class="product-grid">
+    {% for p in page.items %}
+    <article class="p-card glass" style="--h:{{ p.hue }}" data-list-item data-product-card="{{ p.id }}" data-tilt>
+      <a class="p-art" href="/products/{{ p.id }}" tabindex="-1" aria-hidden="true">{{ inventoryBadge(p.inventoryStatus) }}{{ productVisual(p) }}</a>
+      <div class="p-body">
+        <span class="p-sku">{{ p.sku }} · {{ p.categoryName }}</span>
+        <h3><a href="/products/{{ p.id }}">{{ p.name }}</a></h3>
+        <div class="stock-line"><span>{{ stockMeter(p.stockQuantity, p.reorderThreshold, p.inventoryStatus) }}</span><span><b data-stock-qty>{{ p.stockQuantity | num }}</b> in stock</span></div>
+        <div class="p-foot"><span class="price">{{ p.price | money }}</span>{% if p.status != 'ACTIVE' %}{{ productStatusBadge(p.status) }}{% endif %}</div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  <div class="glass flat" style="--r:18px;margin-top:16px">{{ pagination(page, query, '/products', 'product-results') }}</div>
+  {% endif %}
+</section>

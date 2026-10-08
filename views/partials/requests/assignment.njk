@@ -1,0 +1,20 @@
+{% from "components/ui.njk" import avatar %}
+{% from "components/icons.njk" import icon %}
+<section class="card glass" id="assignment-card" data-reveal="card">
+  <div class="card-head"><h2>Assignment</h2></div>
+  {% if request.assigneeName %}
+    <p style="display:flex;gap:10px;align-items:center">{{ avatar(request.assigneeName, 34) }}<span><strong>{{ request.assigneeName }}</strong><br><span class="muted" style="font-size:.8rem">Responsible for fulfilment</span></span></p>
+  {% else %}
+    <p class="muted">Nobody is assigned yet.</p>
+  {% endif %}
+  {% if permissions.assign %}
+  <form style="display:flex;gap:8px;margin-top:14px" hx-put="/requests/{{ request.requestNumber }}/assignee" hx-target="#assignment-card" hx-swap="outerHTML">
+    <label class="sr-only" for="assignee">Assignee</label>
+    <select class="select" id="assignee" name="assigneeId">
+      <option value="">Unassigned</option>
+      {% for u in assignable %}<option value="{{ u.id }}" {{ 'selected' if u.id == request.assigneeId }}>{{ u.fullName }}{% if u.jobTitle %} — {{ u.jobTitle }}{% endif %}</option>{% endfor %}
+    </select>
+    <button class="btn btn-ghost" type="submit">{{ icon('check') }}<span>Assign</span><span class="spinner" aria-hidden="true"></span></button>
+  </form>
+  {% endif %}
+</section>

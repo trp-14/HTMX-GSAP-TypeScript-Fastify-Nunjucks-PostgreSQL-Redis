@@ -1,0 +1,16 @@
+{% from "components/forms.njk" import input, select, formError %}
+{% from "components/icons.njk" import icon %}
+<section class="card glass" id="adjust-card" data-reveal="card" {% if oob %}hx-swap-oob="true"{% endif %}>
+  <div class="card-head"><h2>Record a movement</h2></div>
+  <form class="grid" style="gap:14px" hx-post="/products/{{ product.id }}/movements" hx-target="#stock-panel" hx-swap="outerHTML" novalidate>
+    {{ formError(errors) }}
+    {{ select('type', 'Movement', movementOptions, values.type if values else 'ISSUE', errors) }}
+    {{ input('quantity', 'Quantity', values.quantity if values else '1', 'number', errors, hint='For a stock count, enter the counted quantity.', attrs='min="0" step="1" inputmode="numeric"') }}
+    {{ input('reason', 'Reason', values.reason if values else '', 'text', errors, attrs='maxlength="240" placeholder="e.g. Issued for request #1042"') }}
+    <div class="actions-panel">
+      <button class="btn btn-ghost btn-sm" type="button" data-quick-issue="1">−1</button>
+      <button class="btn btn-ghost btn-sm" type="button" data-quick-issue="5">−5</button>
+      <button class="btn btn-primary" type="submit" style="margin-left:auto">{{ icon('check') }}<span>Record</span><span class="spinner" aria-hidden="true"></span></button>
+    </div>
+  </form>
+</section>

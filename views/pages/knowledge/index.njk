@@ -1,0 +1,43 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% block title %}Knowledge Center{% endblock %}
+{% block page %}knowledge{% endblock %}
+{% block crumbs %}<strong>Knowledge Center</strong>{% endblock %}
+{% block content %}
+<div data-module="knowledge">
+<section class="kb-hero glass" data-reveal="card">
+  <span class="eyebrow">Knowledge Center</span>
+  <h1 data-split>Answers before you have to ask.</h1>
+  <p>Policies, procedures, product documentation and FAQs for everyone at {{ settings.organizationName }}. Search runs on PostgreSQL full-text ranking.</p>
+  <form class="kb-search input-icon" action="/knowledge" method="get" role="search"
+        hx-get="/knowledge" hx-target="#kb-results" hx-swap="outerHTML" hx-push-url="true"
+        hx-trigger="input changed delay:250ms from:input[name='q'], submit" hx-indicator="#kb-ind" hx-include="#kb-category">
+    {{ icon('search') }}
+    <label class="sr-only" for="kb-q">Search the Knowledge Center</label>
+    <input class="input" id="kb-q" type="search" name="q" value="{{ query.q }}" placeholder="Try “reimbursement”, “laptop”, “approval SLA”…" autocomplete="off">
+    <span class="spinner htmx-indicator" id="kb-ind" aria-hidden="true"></span>
+  </form>
+  <input type="hidden" id="kb-category" name="category" value="{{ query.category }}">
+</section>
+
+{% if not query.q and not query.category %}
+<div class="kb-cat-grid">
+  {% for c in categories %}
+  <a class="kb-cat glass" href="/knowledge?category={{ c.slug }}" hx-get="/knowledge?category={{ c.slug }}" hx-target="#kb-results" hx-swap="outerHTML" hx-push-url="true" data-reveal="card" data-kb-category="{{ c.slug }}">
+    <span class="eyebrow">{{ c.articleCount }} articles</span><h3>{{ c.name }}</h3><p>{{ c.description }}</p>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="kb-layout">
+  <nav class="kb-cats" aria-label="Categories">
+    <a href="/knowledge{{ { q: query.q } | qs }}" hx-get="/knowledge{{ { q: query.q } | qs }}" hx-target="#kb-results" hx-swap="outerHTML" hx-push-url="true" data-kb-category="" aria-current="{{ 'true' if not query.category else 'false' }}"><span>All articles</span><span class="n">{{ results.total if not query.category }}</span></a>
+    {% for c in categories %}
+    <a href="/knowledge{{ { q: query.q, category: c.slug } | qs }}" hx-get="/knowledge{{ { q: query.q, category: c.slug } | qs }}" hx-target="#kb-results" hx-swap="outerHTML" hx-push-url="true" data-kb-category="{{ c.slug }}" aria-current="{{ 'true' if query.category == c.slug else 'false' }}"><span>{{ c.name }}</span><span class="n">{{ c.articleCount }}</span></a>
+    {% endfor %}
+  </nav>
+  {% include "partials/knowledge/results.njk" %}
+</div>
+</div>
+{% endblock %}

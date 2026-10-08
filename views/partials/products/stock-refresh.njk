@@ -1,0 +1,6 @@
+{#- Response to a movement or a live refresh: the stock panel, plus out-of-band movement history
+    and (when errors exist) the adjust form. -#}
+{% include "partials/products/stock-panel.njk" %}
+{% set oob = true %}{% set fresh = true %}
+{% include "partials/products/movements.njk" %}
+{% if can['inventory:adjust'] %}{% include "partials/products/adjust-form.njk" %}{% endif %}

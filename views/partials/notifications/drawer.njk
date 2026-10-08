@@ -1,0 +1,5 @@
+<div class="notif-list" data-module="listReveal">
+  {% for n in page.items %}{% include "partials/notifications/item.njk" %}{% else %}
+  <div class="empty" style="color:var(--cream-muted)"><p>You're all caught up.</p></div>
+  {% endfor %}
+</div>

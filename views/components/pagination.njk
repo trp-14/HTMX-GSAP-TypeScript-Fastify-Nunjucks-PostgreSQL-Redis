@@ -1,0 +1,20 @@
+{% from "components/icons.njk" import icon %}
+{#- Pagination with HTMX swaps into a target region and URL history. -#}
+{% macro pagination(page, query, baseUrl, target) %}
+{% if page.totalPages > 1 %}
+<nav class="pagination" aria-label="Pagination">
+  <span class="mono muted">{{ page.from }}–{{ page.to }} of {{ page.total | num }}</span>
+  <div class="pages">
+    {% set prev = page.page - 1 %}{% set next = page.page + 1 %}
+    <a class="{{ 'disabled' if page.page <= 1 }}" href="{{ baseUrl }}{{ query | qs({ page: prev }) }}" hx-get="{{ baseUrl }}{{ query | qs({ page: prev }) }}" hx-target="#{{ target }}" hx-swap="outerHTML show:#{{ target }}:top" hx-push-url="true" aria-label="Previous page">{{ icon('arrow-left') }}</a>
+    {% for p in range(1, page.totalPages + 1) %}
+      {% if p == 1 or p == page.totalPages or (p >= page.page - 1 and p <= page.page + 1) %}
+        {% if p == page.page %}<span class="cur" aria-current="page">{{ p }}</span>
+        {% else %}<a href="{{ baseUrl }}{{ query | qs({ page: p }) }}" hx-get="{{ baseUrl }}{{ query | qs({ page: p }) }}" hx-target="#{{ target }}" hx-swap="outerHTML show:#{{ target }}:top" hx-push-url="true">{{ p }}</a>{% endif %}
+      {% elif p == page.page - 2 or p == page.page + 2 %}<span class="gap">…</span>{% endif %}
+    {% endfor %}
+    <a class="{{ 'disabled' if page.page >= page.totalPages }}" href="{{ baseUrl }}{{ query | qs({ page: next }) }}" hx-get="{{ baseUrl }}{{ query | qs({ page: next }) }}" hx-target="#{{ target }}" hx-swap="outerHTML show:#{{ target }}:top" hx-push-url="true" aria-label="Next page">{{ icon('arrow-right') }}</a>
+  </div>
+</nav>
+{% endif %}
+{% endmacro %}

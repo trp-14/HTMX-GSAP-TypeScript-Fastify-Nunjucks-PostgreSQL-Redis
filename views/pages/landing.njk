@@ -1,0 +1,161 @@
+{% extends "layouts/public.njk" %}
+{% from "components/icons.njk" import icon, logo %}
+{% block title %}Business workflows, operations and real-time monitoring{% endblock %}
+{% block page %}landing{% endblock %}
+{% block content %}
+<div data-module="landing">
+<header class="l-nav glass" data-landing-nav>
+  <a class="brand" style="padding:0" href="/">{{ logo() }}<span>FlowDesk</span></a>
+  <nav class="links" aria-label="Sections">
+    <a href="#workflow" hx-boost="false">Workflow</a><a href="#realtime" hx-boost="false">Real-time</a><a href="#inventory" hx-boost="false">Inventory</a><a href="#audit" hx-boost="false">Audit</a>
+  </nav>
+  {% if signedIn %}<a class="btn btn-primary" href="/overview" data-magnetic>Open FlowDesk {{ icon('arrow-right') }}</a>
+  {% else %}<a class="btn btn-ghost" href="/login" data-magnetic>Sign in</a>{% endif %}
+</header>
+
+<section class="l-hero wrap">
+  <div class="l-hero-grid">
+    <div>
+      <span class="eyebrow" data-hero-fade>Server-driven · TypeScript · Real-time</span>
+      <h1 data-hero-title style="margin-top:18px">Operations, <em>in&nbsp;flow.</em></h1>
+      <p class="sub" data-hero-fade>FlowDesk brings business workflows, operations and real-time monitoring into one platform — requests move through a validated approval workflow, inventory stays honest, and every change streams live to the people who need it.</p>
+      <div class="ctas" data-hero-fade>
+        <a class="btn btn-primary" href="{{ '/overview' if signedIn else '/login' }}" data-magnetic>{{ 'Open the workspace' if signedIn else 'Try the live demo' }} {{ icon('arrow-right') }}</a>
+        <a class="btn btn-ghost" href="#workflow" hx-boost="false" data-magnetic>See how it works</a>
+      </div>
+      <div class="meta mono" data-hero-fade><span><b>0</b> SPA frameworks</span><span><b>SSE</b> live updates</span><span><b>100%</b> server-rendered</span></div>
+    </div>
+
+    <div class="hero-stage" aria-hidden="true" data-hero-stage>
+      <div class="halo"></div><div class="halo h2"></div>
+      <div class="hero-console glass" data-hero-console>
+        <div class="hc-head"><span class="eyebrow">Monitor</span><span class="live-status" data-state="live"><i></i>LIVE</span></div>
+        <div class="hc-row" data-hc-row><span class="req-no">#1042</span><strong>Laptop for finance analyst</strong><span class="badge tone-violet" data-hc-badge><i class="dot"></i>Under review</span></div>
+        <div class="hc-row"><span class="req-no">#1043</span><strong>Ergonomic chairs · Level 9</strong><span class="badge tone-ice"><i class="dot"></i>Processing</span></div>
+        <div class="hc-row"><span class="req-no">#1044</span><strong>VPN access for auditors</strong><span class="badge tone-info"><i class="dot"></i>Submitted</span></div>
+        <div class="hc-row"><span class="mono">SKU</span><strong>Toner TN-760</strong><span class="mono"><b data-hc-stock>10</b> left</span></div>
+      </div>
+      <div class="float-chip glass fc1" data-depth="1.4"><small>pending approvals</small><b data-hc-pending>17</b></div>
+      <div class="float-chip glass fc2" data-depth="-1.2"><small>approved today</small><b data-hc-approved>42</b></div>
+      <div class="float-chip glass fc3" data-depth="0.9"><small>event</small><b data-hc-event>request.approved</b></div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee glass" aria-hidden="true"><div class="marquee-track" data-marquee>
+  {% for t in ['Workflow engine', 'Redis Pub/Sub', 'Server-Sent Events', 'PostgreSQL transactions', 'HTMX fragments', 'GSAP motion', 'Audit trail', 'Role-based access', 'Inventory rules'] %}<span>{{ t }}</span><span>✦</span>{% endfor %}
+  {% for t in ['Workflow engine', 'Redis Pub/Sub', 'Server-Sent Events', 'PostgreSQL transactions', 'HTMX fragments', 'GSAP motion', 'Audit trail', 'Role-based access', 'Inventory rules'] %}<span>{{ t }}</span><span>✦</span>{% endfor %}
+</div></div>
+
+<section class="l-section wrap" id="workflow">
+  <div class="l-head">
+    <div><span class="eyebrow">Workflow management</span><h2 data-reveal-title>Every transition validated on the server.</h2></div>
+    <p>The workflow is data in TypeScript. The browser only names an action — the engine checks the current status, the actor's role and the required notes before PostgreSQL commits a thing.</p>
+  </div>
+  <div class="wf-pin" data-wf-pin>
+    <div class="wf-track glass">
+      <div class="wf-nodes">
+        <div class="wf-line"><i data-wf-line></i></div>
+        {% set nodes = [
+          { k: 'DRAFT', t: 'Draft', d: 'Requester prepares details', i: 'edit' },
+          { k: 'SUBMITTED', t: 'Submitted', d: 'Managers notified', i: 'send' },
+          { k: 'UNDER_REVIEW', t: 'Under review', d: 'Manager evaluates', i: 'eye' },
+          { k: 'APPROVED', t: 'Approved', d: 'Operations alerted', i: 'check' },
+          { k: 'PROCESSING', t: 'Processing', d: 'Fulfilment underway', i: 'zap' },
+          { k: 'COMPLETED', t: 'Completed', d: 'Requester notified', i: 'sparkle' }
+        ] %}
+        {% for n in nodes %}<div class="wf-node" data-wf-node><span class="orb">{{ icon(n.i) }}</span><b>{{ n.t }}</b><span>{{ n.d }}</span></div>{% endfor %}
+      </div>
+      <div class="wf-branches">
+        <div class="wf-branch" data-wf-branch><b style="color:var(--bad)">Rejected</b>Closed with a mandatory reason the requester can read.</div>
+        <div class="wf-branch" data-wf-branch><b style="color:var(--warn)">Changes requested</b>Back to the requester, then resubmitted into review.</div>
+        <div class="wf-branch" data-wf-branch><b style="color:var(--ice)">Every step</b>One transaction: status, history, approval, audit, notifications.</div>
+      </div>
+      <div class="wf-event" data-wf-event><span>PostgreSQL COMMIT</span>{{ icon('arrow-right') }}<span>PUBLISH request.approved</span>{{ icon('arrow-right') }}<span>SSE</span>{{ icon('arrow-right') }}<span>HTMX + GSAP</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="l-section wrap" id="realtime" style="padding-top:0">
+  <div class="feature-grid">
+    <article class="feature glass span-2" data-feature>
+      <span class="f-ico">{{ icon('pulse') }}</span>
+      <h3>Real-time monitoring without polling</h3>
+      <p>A manager approves request #1042 in one browser; the operations monitor in another updates within milliseconds. Pending approvals tick down, approved-today ticks up, and the card glides into its new lane.</p>
+      <div class="wf-event"><span>Fastify</span>{{ icon('arrow-right') }}<span>Redis channel</span>{{ icon('arrow-right') }}<span>EventSource</span>{{ icon('arrow-right') }}<span>Flip animation</span></div>
+    </article>
+    <article class="feature glass" data-feature id="audit">
+      <span class="f-ico">{{ icon('shield') }}</span>
+      <h3>Auditability by design</h3>
+      <p>Audit records are written inside the same transaction as the change — before/after state, actor, IP and context. If the change rolls back, so does its record.</p>
+    </article>
+    <article class="feature glass" data-feature>
+      <span class="f-ico">{{ icon('zap') }}</span>
+      <h3>Business automation</h3>
+      <p>Submissions notify managers, approvals alert operations, thresholds raise stock alerts and comments reach everyone on the thread — automatically.</p>
+    </article>
+    <article class="feature glass" data-feature>
+      <span class="f-ico">{{ icon('key') }}</span>
+      <h3>Secure sessions</h3>
+      <p>HTTP-only cookies, Redis-backed sessions with idle and absolute expiry, CSRF tokens, rate-limited sign-in and permission checks on every route.</p>
+    </article>
+    <article class="feature glass" data-feature>
+      <span class="f-ico">{{ icon('layers') }}</span>
+      <h3>Server-rendered UI</h3>
+      <p>Nunjucks renders every pixel of HTML. HTMX swaps only the fragment that changed; GSAP gives those swaps purposeful motion.</p>
+    </article>
+  </div>
+</section>
+
+<section class="l-section wrap" id="inventory" style="padding-top:0">
+  <div class="live-demo glass" data-live-demo>
+    <div class="inv-demo">
+      <span class="eyebrow">Product & inventory management</span>
+      <h2 style="font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-.04em">Stock that can't go negative.</h2>
+      <p class="muted">Each movement locks the product row, applies the inventory rules, records history and publishes an event. Cross the threshold and the whole team sees it.</p>
+      <div style="display:flex;align-items:baseline;gap:14px;margin-top:6px"><span class="stock-number" data-demo-stock>10</span><span class="muted">units · reorder at 3</span></div>
+      <div><span class="badge tone-good" data-demo-badge><i class="dot"></i>In stock</span></div>
+      <span class="meter lg"><span class="fill" data-demo-meter style="--v:100%;--tone:var(--good)"></span></span>
+    </div>
+    <div class="terminal" data-terminal aria-label="Example event stream">
+      <span class="ln"><span class="c"># redis-cli PSUBSCRIBE 'flowdesk.events.*'</span></span>
+      <span class="ln"><span class="k">inventory.changed</span> TN-760 <span class="s">10 → 9</span> IN_STOCK</span>
+      <span class="ln"><span class="k">inventory.changed</span> TN-760 <span class="s">9 → 3</span> LOW_STOCK</span>
+      <span class="ln"><span class="k">inventory.low</span> TN-760 threshold=3</span>
+      <span class="ln"><span class="k">notification.created</span> → operations (4)</span>
+      <span class="ln"><span class="k">inventory.changed</span> TN-760 <span class="s">3 → 0</span> OUT_OF_STOCK</span>
+      <span class="ln"><span class="k">inventory.out</span> TN-760 <span class="c"># monitor flashes red</span></span>
+    </div>
+  </div>
+</section>
+
+<section class="l-section wrap" style="padding-top:0">
+  <div class="l-head"><div><span class="eyebrow">In this demo workspace</span><h2 data-reveal-title>Real data, really moving.</h2></div><p>Figures below are read from the seeded PostgreSQL database behind this page.</p></div>
+  <div class="big-stats">
+    <div class="big-stat glass" data-feature><b data-count-to="{{ stats.requests }}">0</b><span>requests in the workflow</span></div>
+    <div class="big-stat glass" data-feature><b data-count-to="{{ stats.completed }}">0</b><span>requests completed</span></div>
+    <div class="big-stat glass" data-feature><b data-count-to="{{ stats.products }}">0</b><span>products tracked</span></div>
+    <div class="big-stat glass" data-feature><b data-count-to="{{ stats.events }}">0</b><span>audited events</span></div>
+  </div>
+  <div class="stack-row" style="margin-top:28px" data-stack>
+    {% for t in ['TypeScript', 'Fastify', 'Nunjucks', 'HTMX', 'GSAP', 'PostgreSQL', 'Redis', 'Server-Sent Events', 'Docker'] %}<span>{{ t }}</span>{% endfor %}
+  </div>
+</section>
+
+<section class="l-section wrap" style="padding-top:0">
+  <div class="cta-band glass">
+    <div><span class="eyebrow">Ready when you are</span><h2 data-reveal-title>Approve a request. Watch it land live.</h2>
+      <p>Sign in as a manager in one window and operations in another. Approve request #1042 and watch the monitor update.</p></div>
+    <div class="ctas" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end">
+      <a class="btn btn-primary" href="{{ '/monitor' if signedIn else '/login' }}" data-magnetic>{{ 'Open the monitor' if signedIn else 'Sign in to the demo' }} {{ icon('arrow-right') }}</a>
+      {% if not signedIn and settings.allowSelfRegistration %}<a class="btn btn-ghost" href="/register">Create an account</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+<footer class="site-foot wrap"><div class="row">
+  <span>FlowDesk is a portfolio project. {{ settings.organizationName }}, its people and its data are fictional.</span>
+  <span class="mono">Fastify · Nunjucks · HTMX · GSAP · PostgreSQL · Redis</span>
+</div></footer>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "layouts/app.njk" %}
+{% from "components/ui.njk" import alert %}
+{% block title %}User created{% endblock %}
+{% block crumbs %}<a href="/users">Users</a><span>/</span><strong>{{ created.fullName }}</strong>{% endblock %}
+{% block content %}
+<section class="card glass" style="max-width:640px" data-reveal="card">
+  <span class="eyebrow">Account created</span>
+  <h1 style="font-size:2rem;margin:8px 0 12px">{{ created.fullName }}</h1>
+  {{ alert('Temporary password — shown only once', 'Share it through a secure channel. The user should change it from the Account page after signing in.', 'warn', 'key') }}
+  <p class="mono" style="font-size:1.2rem;margin:18px 0;padding:14px 16px;border-radius:14px;background:rgba(3,7,22,.6);user-select:all">{{ temporaryPassword }}</p>
+  <div class="form-actions" style="justify-content:flex-start"><a class="btn btn-primary" href="/users">Back to users</a></div>
+</section>
+{% endblock %}

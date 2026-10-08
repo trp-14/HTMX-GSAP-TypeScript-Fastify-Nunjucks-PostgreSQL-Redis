@@ -1,0 +1,75 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% from "components/ui.njk" import statusBadge, priorityBadge, avatar %}
+{% from "components/forms.njk" import csrf %}
+{% block title %}#{{ request.requestNumber }} {{ request.title }}{% endblock %}
+{% block page %}request-detail{% endblock %}
+{% block crumbs %}<a href="/requests">Requests</a><span>/</span><strong>#{{ request.requestNumber }}</strong>{% endblock %}
+{% block content %}
+<div data-module="requestLive" data-request-id="{{ request.id }}" data-request-number="{{ request.requestNumber }}">
+<header class="page-head">
+  <div style="min-width:0">
+    <span class="eyebrow">#{{ request.requestNumber }} · {{ request.typeName }}</span>
+    <h1 data-split style="margin-top:8px">{{ request.title }}</h1>
+    <div class="chips" style="margin-top:12px">
+      <span id="request-status-badge">{{ statusBadge(request.status) }}</span>
+      {{ priorityBadge(request.priority) }}
+      <span class="badge tone-muted">{{ request.departmentName }}</span>
+    </div>
+  </div>
+  <div class="actions">
+    {% if permissions.edit %}<a class="btn btn-ghost" href="/requests/{{ request.requestNumber }}/edit">{{ icon('edit') }}<span>Edit</span></a>{% endif %}
+    {% if permissions.delete %}
+    <button class="btn btn-negative" type="button" hx-delete="/requests/{{ request.requestNumber }}"
+            data-confirm="Delete request #{{ request.requestNumber }}? Its comments and documents will be removed too.">{{ icon('trash') }}<span>Delete</span></button>
+    {% endif %}
+  </div>
+</header>
+
+{% include "partials/workflow/panel.njk" %}
+
+<div class="split" style="margin-top:18px">
+  <div class="grid">
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Description</h2></div>
+      <div class="prose-block">{{ request.description }}</div>
+    </section>
+
+    <section class="card glass" id="comments" data-reveal="card">
+      <div class="card-head"><h2>Discussion</h2><span class="muted mono" id="comment-count">{{ comments.length }} comment{{ 's' if comments.length != 1 }}</span></div>
+      <div class="comments" id="comment-list">
+        {% for comment in comments %}{% include "partials/requests/comment.njk" %}{% else %}<p class="muted" id="no-comments">No comments yet. Start the conversation.</p>{% endfor %}
+      </div>
+      {% if permissions.comment %}
+      <form class="grid" style="margin-top:16px;gap:10px" hx-post="/requests/{{ request.requestNumber }}/comments"
+            hx-target="#comment-list" hx-swap="beforeend" data-reset-on-success>
+        <label class="sr-only" for="comment-body">Add a comment</label>
+        <textarea class="textarea" id="comment-body" name="body" rows="3" maxlength="4000" placeholder="Write a comment… mention context, questions or decisions." required></textarea>
+        <div class="form-actions" style="margin-top:0"><button class="btn btn-primary btn-sm" type="submit">{{ icon('message') }}<span>Comment</span><span class="spinner" aria-hidden="true"></span></button></div>
+      </form>
+      {% endif %}
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>Details</h2></div>
+      <dl class="detail-grid">
+        <div><dt>Requester</dt><dd style="display:flex;gap:8px;align-items:center">{{ avatar(request.requesterName, 24) }}{{ request.requesterName }}</dd></div>
+        <div><dt>Department</dt><dd>{{ request.departmentName }}</dd></div>
+        <div><dt>Created</dt><dd>{{ request.createdAt | datetime }}</dd></div>
+        <div><dt>Updated</dt><dd title="{{ request.updatedAt | datetime }}">{{ request.updatedAt | ago }}</dd></div>
+        <div><dt>Due date</dt><dd class="{{ 'overdue' if request.dueDate | isOverdue(request.status) }}">{{ request.dueDate | date if request.dueDate else '—' }}</dd></div>
+        <div><dt>Submitted</dt><dd>{{ request.submittedAt | datetime if request.submittedAt else '—' }}</dd></div>
+      </dl>
+    </section>
+    {% include "partials/requests/assignment.njk" %}
+    {% include "partials/requests/attachments.njk" %}
+    <section class="card glass" data-reveal="card">
+      <div class="card-head"><h2>History</h2></div>
+      {% include "partials/workflow/timeline.njk" %}
+    </section>
+  </div>
+</div>
+</div>
+{% endblock %}

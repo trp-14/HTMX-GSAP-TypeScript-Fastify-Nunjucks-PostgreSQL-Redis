@@ -1,0 +1,45 @@
+{% extends "layouts/app.njk" %}
+{% from "components/icons.njk" import icon %}
+{% block title %}Products{% endblock %}
+{% block page %}products{% endblock %}
+{% block crumbs %}<strong>Products</strong>{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <span class="eyebrow">Catalogue & inventory</span>
+    <h1 data-split>Products</h1>
+    <p>Equipment and supplies the operations team stocks for requests. Stock levels update live as movements are recorded.</p>
+  </div>
+  <div class="actions">
+    {% if can['product:manage'] %}<a class="btn btn-primary" href="/products/new">{{ icon('plus') }}<span>New product</span></a>{% endif %}
+  </div>
+</header>
+
+<form class="toolbar" action="/products" method="get" role="search"
+      hx-get="/products" hx-target="#product-results" hx-swap="outerHTML" hx-push-url="true"
+      hx-trigger="input changed delay:300ms from:input[name='q'], change from:select, submit" hx-indicator="#prod-search-ind">
+  <div class="grow input-icon">
+    {{ icon('search') }}
+    <label class="sr-only" for="prod-q">Search products</label>
+    <input class="input" id="prod-q" type="search" name="q" value="{{ query.q }}" placeholder="Search name, SKU or description" autocomplete="off">
+    <span class="spinner htmx-indicator" id="prod-search-ind" aria-hidden="true"></span>
+  </div>
+  <label class="sr-only" for="prod-cat">Category</label>
+  <select class="select" id="prod-cat" name="category"><option value="">All categories</option>{% for o in categoryOptions %}<option value="{{ o.value }}" {{ 'selected' if query.category | same(o.value) }}>{{ o.label }}</option>{% endfor %}</select>
+  <label class="sr-only" for="prod-stock">Inventory</label>
+  <select class="select" id="prod-stock" name="stock"><option value="">Any stock level</option>{% for o in stockOptions %}<option value="{{ o.value }}" {{ 'selected' if query.stock == o.value }}>{{ o.label }}</option>{% endfor %}</select>
+  <label class="sr-only" for="prod-status">Status</label>
+  <select class="select" id="prod-status" name="status"><option value="">Any status</option>{% for o in statusOptions %}<option value="{{ o.value }}" {{ 'selected' if query.status == o.value }}>{{ o.label }}</option>{% endfor %}</select>
+  <label class="sr-only" for="prod-sort">Sort</label>
+  <select class="select" id="prod-sort" name="sort">
+    {% for k, l in { name: 'Name', price: 'Price', stock: 'Stock', updated: 'Recently updated', sku: 'SKU', category: 'Category' } %}<option value="{{ k }}" {{ 'selected' if query.sort == k }}>Sort: {{ l }}</option>{% endfor %}
+  </select>
+  <input type="hidden" name="view" value="{{ view }}" id="prod-view">
+  <div class="segmented" role="group" aria-label="Layout">
+    <a href="/products{{ query | qs({ view: 'grid', page: None }) }}" hx-get="/products{{ query | qs({ view: 'grid', page: None }) }}" hx-target="#product-results" hx-swap="outerHTML" hx-push-url="true" aria-current="{{ 'true' if view == 'grid' else 'false' }}" data-view-toggle="grid">Grid</a>
+    <a href="/products{{ query | qs({ view: 'table', page: None }) }}" hx-get="/products{{ query | qs({ view: 'table', page: None }) }}" hx-target="#product-results" hx-swap="outerHTML" hx-push-url="true" aria-current="{{ 'true' if view == 'table' else 'false' }}" data-view-toggle="table">Table</a>
+  </div>
+</form>
+
+{% include "partials/products/results.njk" %}
+{% endblock %}
