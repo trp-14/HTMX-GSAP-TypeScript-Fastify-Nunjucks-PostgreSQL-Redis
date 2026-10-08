@@ -1,0 +1,58 @@
+# Local development / demo stack: application + PostgreSQL + Redis.
+#   docker compose up --build
+#   docker compose run --rm app node dist/db/cli/seed.js   # load demo data
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: flowdesk
+      POSTGRES_PASSWORD: flowdesk
+      POSTGRES_DB: flowdesk
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U flowdesk -d flowdesk']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    # Redis holds only ephemeral state (sessions, cache, rate limits, pub/sub) — no persistence needed.
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_ORIGIN: http://localhost:3000
+      DATABASE_URL: postgres://flowdesk:flowdesk@postgres:5432/flowdesk
+      REDIS_URL: redis://redis:6379
+      # Plain HTTP on localhost: no Secure cookies. Set COOKIE_SECURE=true behind HTTPS.
+      COOKIE_SECURE: 'false'
+      # Demo only: allows `seed.js` to run against this stack and fills the login helper.
+      ALLOW_PRODUCTION_SEED: 'true'
+      SEED_PASSWORD: FlowDesk!2026
+    ports:
+      - '3000:3000'
+    volumes:
+      - uploads:/app/storage/uploads
+
+volumes:
+  pgdata:
+  uploads:
