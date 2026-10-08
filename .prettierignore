@@ -1,0 +1,9 @@
+node_modules
+dist
+public/assets
+storage
+package-lock.json
+views
+public/css
+migrations
+*.md

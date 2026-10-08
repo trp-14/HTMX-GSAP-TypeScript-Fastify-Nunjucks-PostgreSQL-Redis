@@ -1,0 +1,13 @@
+node_modules/
+dist/
+public/assets/
+storage/uploads/*
+!storage/uploads/.gitkeep
+.env
+.env.*
+!.env.example
+coverage/
+*.log
+.DS_Store
+storage/test-uploads/
+dump.rdb
