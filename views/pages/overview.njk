@@ -27,8 +27,8 @@
   {{ stat('Out of stock', inventory.outOfStock, 'bad', 'needs reorder', '/products?stock=OUT_OF_STOCK') }}
 </section>
 
-<div class="split">
-  <div class="grid">
+<div class="ov-layout">
+  <div class="grid ov-a">
     <section class="card glass" data-reveal="card">
       <div class="card-head"><h2>Request volume · 14 days</h2>
         <span class="legend"><span><i style="background:var(--ice)"></i>Created</span><span><i style="background:var(--good)"></i>Completed</span></span></div>
@@ -57,7 +57,7 @@
     </section>
   </div>
 
-  <div class="grid">
+  <div class="grid ov-b">
     <section class="card glass" data-reveal="card">
       <div class="card-head"><h2>Workflow summary</h2></div>
       <div class="flow-summary">
@@ -78,7 +78,9 @@
       </div>
       {% else %}<p class="muted">Every active product is above its reorder threshold.</p>{% endif %}
     </section>
+  </div>
 
+  <div class="grid ov-c">
     <section class="card glass" data-reveal="card">
       <div class="card-head"><h2>Recent activity</h2></div>
       <div class="timeline" data-module="timeline">
