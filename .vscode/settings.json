@@ -1,6 +1,6 @@
 {
-    "sonarlint.connectedMode.project": {
-        "connectionId": "http://192.168.151.73:9000",
-        "projectKey": "wdl-govtech_kemenkeu_span-modernisasi_span-console_febed87c-0184-4a1c-9c67-16f4ca7b6935"
-    }
+  "sonarlint.connectedMode.project": {
+    "connectionId": "http://192.168.151.73:9000",
+    "projectKey": "wdl-govtech_kemenkeu_span-modernisasi_span-console_febed87c-0184-4a1c-9c67-16f4ca7b6935"
+  }
 }
