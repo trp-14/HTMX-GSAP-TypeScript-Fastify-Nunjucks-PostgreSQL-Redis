@@ -11,3 +11,4 @@ coverage/
 .DS_Store
 storage/test-uploads/
 dump.rdb
+.vscode/settings.json
